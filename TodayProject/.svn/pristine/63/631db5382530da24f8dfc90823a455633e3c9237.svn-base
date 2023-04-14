@@ -1,0 +1,97 @@
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+	pageEncoding="UTF-8"%>
+
+<%@taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
+
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>상품관리</title>
+<!-- 라이브러리 등록  : CDN 방식 -->
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script
+	src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.1/jquery.min.js"></script>
+<script
+	src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+
+<script type="text/javascript">
+	$(function() {
+		// alert("jQuery 동작함")
+		$("#delallBtn").click(function() {
+			// 			alert("클릭함");
+			if (!confirm("주의 ※ 정말 모든 상품을 장바구니에서 비우시겠습니까?"))
+				return false;
+		});
+		$(".dataRow").click(function() {
+			let cartNo = $(this).data("no");
+			// 			alert("클릭한번호 : " + cartNo);
+			location = "view.do?no=" + cartNo;
+
+		});
+		$("#orderBtn").click(function(){
+			
+		});
+	});
+</script>
+<style type="text/css">
+#chklist {
+	cursor: pointer;
+}
+
+.thumbnail:hover {
+	cursor: pointer;
+	border: 1px solid #CC9966;
+}
+</style>
+
+</head>
+<body>
+	<div class="container">
+		<form id="myForm">
+			<div class="col-md-12">
+				<a href="alldelete.do">
+					<button type="button" style="float: right; margin-bottom: 10px;"
+						id="delallBtn">전체삭제</button>
+				</a> <a href="delete.do" id="deletechk"> <!-- 				<button	style="float: right; margin-bottom: 10px;">선택삭제</button></a>  --></a>
+				<button type="button" style="float: right; margin-bottom: 10px;" id="orderBtn">주문하기</button>
+				<h2>장바구니</h2>
+			</div>
+			<div class="col-md-12">
+				<hr>
+			</div>
+			<div class="row">
+				<!-- c:forEach 의 속성 중 반복 회수가 저장 되어있는 varStatus 변수의 상태 -->
+				<c:forEach items="${list }" var="vo" varStatus="vs">
+					<!-- 데이터 출력 개수가 4의 배수 -->
+					<c:if test="${vs.index != 0 && vs.index % 4 == 0}">
+							${"</div>"}
+							${"<div class = \"row\">"}
+						</c:if>
+					<div class="col-md-3" data-no="${vo.cartNo }">
+						<input type="checkbox" name="cartNo" value="${vo.cartNo }">
+						<div class="thumbnail dataRow" data-no="${vo.cartNo }">
+							<img src="${vo.fileName }" class="img-zoom" alt="${vo.fileName }"
+								style="width: 100%">
+							<div class="caption">
+								<div>${vo.name_kr }</div>
+								<p>
+									옵션 : ${vo.goodsDiv }
+									<c:if test="${vo.goodsDiv ne 'food'}">
+							/ ${vo.cup_size } / ${vo.cup } / ${vo.syrup } 
+							</c:if>
+									<c:if test="${vo.goodsDiv eq 'food'}">
+							/ ${vo.heating }
+							</c:if>
+									<br />수량 :${vo.quantity }개 &nbsp; &nbsp; &nbsp;
+									가격:${vo.totalPrice }원
+								</p>
+							</div>
+						</div>
+					</div>
+				</c:forEach>
+			</div>
+		</form>
+	</div>
+</body>
+</html>

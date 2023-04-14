@@ -1,0 +1,168 @@
+package com.today.goods.controller;
+
+import javax.servlet.http.HttpServletRequest;
+
+import com.oreilly.servlet.MultipartRequest;
+import com.oreilly.servlet.multipart.DefaultFileRenamePolicy;
+import com.today.goods.vo.GoodsVO;
+import com.today.main.Execute;
+import com.today.main.ServiceInterface;
+
+public class GoodsController {
+
+	//null point  뜨면 Init클래스 확인하자
+	
+	//private 서비스 생성
+	private ServiceInterface goodsListService;
+	private ServiceInterface goodsViewService;
+	private ServiceInterface goodsWriteService;
+	private ServiceInterface goodsUpdateService;
+	private ServiceInterface goodsDeleteService;
+
+	//setter생성하여 위 service를 받는다.
+	public void setGoodsListService(ServiceInterface goodsListService) {
+		this.goodsListService = goodsListService;
+	}
+	
+	
+	public void setGoodsViewService(ServiceInterface goodsViewService) {
+		this.goodsViewService = goodsViewService;
+	}
+
+
+	public void setGoodsWriteService(ServiceInterface goodsWriteService) {
+		this.goodsWriteService = goodsWriteService;
+	}
+
+
+	public void setGoodsUpdateService(ServiceInterface goodsUpdateService) {
+		this.goodsUpdateService = goodsUpdateService;
+	}
+
+
+	public void setGoodsDeleteService(ServiceInterface goodsDeleteService) {
+		this.goodsDeleteService = goodsDeleteService;
+	}
+
+
+	//실행메서드- return 되는 String데이터는 jsp 또는 url 정보.
+	public String execute(HttpServletRequest request) throws Exception{
+		System.out.println("GoodsController.execute().request : " + request);
+		
+		//어떤 요청 하는지
+		String uri = request.getRequestURI();
+		String method = request.getMethod();
+		System.out.println("GoodsController.method() : " + method);
+		
+		//*파일 업로드를 위한 정보!!!*
+		//파일 저장된 위치
+		String path = "/upload/image";
+		//실제적인 파일 시스템 위치가 필요함
+		String realPath = request.getServletContext().getRealPath(path);
+		System.out.println("GoodsController.execute().realPath : " +realPath);
+		int size = 100*1024*1024;
+		
+		//상품(이미지)등록시 아이디가 session에 저장되어있다. (관리자만 등록가능)
+		//HttpSession session = request.getSession();
+		String jsp = null;
+		
+		switch (uri) {
+		case "/goods/list.do":
+			//페이지 정보 받기
+//			long page = 1; //기본페이지
+//			long perPageNum = 8; //한페이지당 보여지는 게시물
+//			String pageStr = request.getParameter("page");
+//			if(pageStr != null && pageStr != "")
+//				page = Long.parseLong(pageStr);
+//			String perPageNumStr = request.getParameter("perPageNum");
+//			if(perPageNumStr != null && perPageNumStr != "")
+//				perPageNum = Long.parseLong(perPageNumStr);
+//			PageObject pageObject = new PageObject(page, perPageNum);
+			
+			//데이터 수집
+			 request.setAttribute("list", Execute.run(goodsListService, null));
+			 jsp = "goods/list";
+			 
+			break;
+			
+			
+		case "/goods/view.do":
+			//데이터수집	
+			long no = Long.parseLong(request.getParameter("no"));
+			//System.out.println(no);
+			//데이터 처리 -> request에 담고 jsp에서 꺼내 쓴다.
+			GoodsVO viewVO = (GoodsVO) Execute.run(goodsViewService, no);
+			
+			viewVO.setGoodsView(viewVO.getGoodsView().replace("\n", "<\br>"));
+			request.setAttribute("vo", viewVO);
+			jsp = "goods/view";
+			
+			break;
+			
+		case "/goods/write.do":
+			//writeForm 으로. get 방식
+			if(request.getMethod().equals("GET")) {
+				jsp  = "goods/write";
+			}else {
+				//post방식이라면
+				//파일 업로드 실행 -> 객체 생성과 동시에 업로드 해준다.
+				//request 대신 MultipartRequest multi에 데이터를 넣어둔다.
+				//DefaultFileRenamePolicy() - 중복 이름 삭제
+				MultipartRequest multi = new MultipartRequest(request, realPath,size,"utf-8", new DefaultFileRenamePolicy());
+				
+				//데이터 수집
+				GoodsVO writeVO = new GoodsVO();
+				writeVO.setGoodsDiv(multi.getParameter("goodsDiv"));
+				writeVO.setName_kr(multi.getParameter("name_kr"));
+				writeVO.setName_en(multi.getParameter("name_en"));
+				writeVO.setGoodsView(multi.getParameter("goodsView"));
+				long price = Long.parseLong(multi.getParameter("price"));
+				writeVO.setPrice(price);
+				writeVO.setFileName(multi.getParameter("fileName"));
+				System.out.println("GoodsController.execute().writeVO : " + writeVO);
+				
+				//글등록
+				Execute.run(goodsWriteService, writeVO);
+				jsp = "redirect:list.do";
+			}
+			
+			break;
+			
+		case "/goods/update.do":
+			//updateVO 변수 생헝하고 view서비스에서 번호를 가져오기
+			long updateNo = Long.parseLong(request.getParameter("goodsNo"));
+			if(request.getMethod().equals(method)) {
+				//데이터 처리
+				request.setAttribute("vo", Execute.run(goodsViewService, updateNo));
+			}else {
+				GoodsVO updateVO=new GoodsVO();
+				//데이터 수집
+				updateVO.setGoodsNo(updateNo);
+				updateVO.setGoodsDiv(request.getParameter("goodsDiv"));
+				updateVO.setName_kr(request.getParameter("name_kr"));
+				updateVO.setName_en(request.getParameter("name_en"));
+				updateVO.setGoodsView(request.getParameter("goodsView"));
+				long price = Long.parseLong(request.getParameter("price"));
+				updateVO.setPrice(price);
+				//DB처리하기
+				
+				Execute.run(goodsUpdateService, updateVO);
+				jsp="redirect:view.do?no="+updateNo;
+			}
+			 
+			
+			break;
+			
+		case "/goods/delete.do":
+			Execute.run(goodsDeleteService, null);
+			
+			break;
+
+		default:
+			throw new Exception();
+		}
+		
+		return jsp;
+	}
+	
+}

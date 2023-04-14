@@ -1,0 +1,172 @@
+package com.today.cart.controller;
+
+
+
+import java.net.MulticastSocket;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
+
+import com.today.cart.service.CartAddServiceImpl;
+import com.today.cart.vo.CartVO;
+import com.today.goods.vo.GoodsVO;
+import com.today.main.Execute;
+import com.today.main.ServiceInterface;
+import com.today.member.vo.MemberVO;
+
+
+public class CartController {
+
+	// private 서비스 생성
+	private ServiceInterface cartListService;
+	private ServiceInterface cartViewService;
+	private ServiceInterface cartAddService;
+	private ServiceInterface cartUpdateService;
+	private ServiceInterface cartDeleteService;
+	private ServiceInterface cartAllDeleteService;
+	private ServiceInterface cartOptionAddService;
+	private ServiceInterface cartOptionViewService;
+	private ServiceInterface cartNoListService;
+
+	// setter
+	public void setCartListService(ServiceInterface cartListService) {
+		this.cartListService = cartListService;
+	}
+	public void setCartViewService(ServiceInterface cartViewService) {
+		this.cartViewService = cartViewService;
+	}
+	public void setCartAddService(ServiceInterface cartAddService) {
+		this.cartAddService = cartAddService;
+	}
+	public void setCartUpdateService(ServiceInterface cartUpdateService) {
+		this.cartUpdateService = cartUpdateService;
+	}
+	public void setCartDeleteService(ServiceInterface cartDeleteService) {
+		this.cartDeleteService = cartDeleteService;
+	}
+	public void setCartAllDeleteService(ServiceInterface cartAllDeleteService) {
+		this.cartAllDeleteService = cartAllDeleteService;
+	}
+	public void setCartOptionAddService(ServiceInterface cartOptionAddService) {
+		this.cartOptionAddService = cartOptionAddService;
+	}
+	public void setCartOptionViewService(ServiceInterface cartOptionViewService) {
+		this.cartOptionViewService = cartOptionViewService;
+	}
+	public void setCartNoListService(ServiceInterface cartNoListService) {
+		this.cartNoListService = cartNoListService;
+	}
+	// 실행 메서드 -> 리턴 String 데이터를 jsp 또는 url 정보가 된다.
+	public String execute(HttpServletRequest request) throws Exception {
+		System.out.println("CartController.execute().request : " + request);
+		// 어떤 요청
+		String uri = request.getRequestURI();
+		String method = request.getMethod();
+		System.out.println("CartController.execute().method : " + method);
+		// 세션 받아오기
+		HttpSession session = request.getSession();
+		String jsp = null;
+
+		// 처리
+		switch (uri) {
+		case "/cart/list.do": // 리스트
+			String lid = (((MemberVO)session.getAttribute("login")).getId());
+			request.setAttribute("list", Execute.run(cartListService, lid));
+			jsp = "cart/list";
+			break;
+		case "/cart/view.do": // view
+			// 데이터 수집
+			String noStr = request.getParameter("no");
+			long no = Long.parseLong(noStr);
+			System.out.println(no);
+			// 데이터 처리
+			CartVO viewVO = (CartVO) Execute.run(cartViewService,no );
+			// 내용 줄바꿈 처리
+			viewVO.setGoodsview(viewVO.getGoodsview().replace("\n", "<br/>"));
+			request.setAttribute("vo", viewVO);
+			jsp = "cart/view";
+			break;
+		case "/cart/add.do": // 담기
+				CartVO vo = new CartVO();
+				vo.setGoodsNo(Long.parseLong(request.getParameter("goodsNo")));
+				vo.setName_kr(request.getParameter("name_kr"));
+				String heating = request.getParameter("heating");
+				if(heating != null) { // heating이 null이 아닌경우
+					vo.setHeating(heating);
+				}else { // heating이 null인 경우
+					vo.setCup_size(request.getParameter("cup_size"));
+					vo.setCup(request.getParameter("cup"));
+					vo.setSyrup(request.getParameter("syrup"));
+				}
+				Execute.run(cartOptionAddService, vo);
+				System.out.println("오니?"+vo);
+				CartVO opNo = new CartVO();
+				opNo = (CartVO)Execute.run(cartOptionViewService, vo);
+				vo.setOptionNo(opNo.getOptionNo());
+				vo.setId(((MemberVO)session.getAttribute("login")).getId());
+				vo.setQuantity(Long.parseLong(request.getParameter("quantity")));
+				vo.setTotalPrice(Long.parseLong(request.getParameter("orderPrice")));
+				// 담기 서비스 실행
+				Execute.run(cartAddService, vo);
+				request.setAttribute("vo", vo);
+				// 장바구니로 이동
+				jsp = "redirect:list.do";
+			break;
+			
+		case "/cart/update.do": // 수량 수정
+			// 데이터 수집
+			long updateNo = Long.parseLong(request.getParameter("no"));
+			// 수정 데이터 가져오기
+			if(request.getMethod().equals("GET")) {
+				request.setAttribute("vo", Execute.run(cartViewService,updateNo));
+				jsp = "cart/view";
+			}else {
+				CartVO updateVO = new CartVO();
+				// 데이터 수집 vo 넣기
+				updateVO.setCartNo(updateNo);
+				Long quantity = Long.parseLong(request.getParameter("quantity"));
+				updateVO.setQuantity(quantity);
+				Long totalPrice = Long.parseLong(request.getParameter("totalPrice"));
+				updateVO.setTotalPrice(totalPrice);
+				updateVO.setId(((MemberVO)session.getAttribute("login")).getId());
+				Execute.run(cartUpdateService, updateVO);
+				jsp = "redirect:list.do";
+			}
+			break;
+		case "/cart/delete.do": // 선택 삭제
+			// 데이터 수집
+			long deleteNo = Long.parseLong(request.getParameter("no"));
+			CartVO deleteVO = new CartVO();
+			deleteVO.setCartNo(deleteNo);
+			// db처리
+			Execute.run(cartDeleteService, deleteVO);
+			jsp = "redirect:list.do";
+			break;
+			
+		case "/cart/alldelete.do": // 전체 삭제
+			String id = request.getParameter("id");
+			CartVO deleteallVO = new CartVO();
+			deleteallVO.setId(((MemberVO)session.getAttribute("login")).getId());
+			// db 처리
+			Execute.run(cartAllDeleteService, deleteallVO);
+			jsp ="redirect:list.do";
+			break;
+		default:
+			jsp ="redirect:/error/404.do";
+			request.getSession().setAttribute("uri", uri);
+		}// end of switch
+		return jsp;
+	}// end of execute()
+	
+	// Goods -> cart : 물품 받기
+	public void cart(GoodsVO gvo, int quantity) throws Exception{
+		CartVO cvo = new CartVO();
+		cvo.setGoodsNo(gvo.getGoodsNo());
+		cvo.setOptionNo(cvo.getOptionNo());
+		cvo.setQuantity(quantity);
+		cvo.setId(cvo.getId());
+		if((Integer)Execute.run(new CartAddServiceImpl(), cvo) == 1) {
+			
+		}// end of if
+	}// end of cart(GoodsVO gvo, int quantity)
+}

@@ -1,0 +1,88 @@
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"%>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>pay</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.1/jquery.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+</head>
+<body>
+<div class="container">
+	<h2>결제 정보</h2>
+	<h1>주문정보</h1>
+	<table class="table">
+		<thead>
+			<tr>
+				<th>파일명</th>
+				<th>상품이름</th>
+				<th>옵션</th>
+				<th>상품수량</th>
+				<th>상품가격</th>
+			</tr>
+		</thead>
+		<tbody>
+ 			<c:forEach items="${list }" var="vo">
+				<tr>
+					<td>${vo.fileName }</td>
+					<td>${vo.goodsName }</td>
+					<c:if test="${vo.goodsDiv ne 'food' }">
+						<td>${vo.goodsDiv} / ${vo.cupSize } / ${vo.cup } / ${vo.syrup }</td>
+					</c:if>
+					<c:if test="${vo.goodDiv eq 'food' }">
+						<td>${vo.goodsDiv} / ${vo.heating }</td>
+					</c:if>
+					<td>${vo.quantity }</td>
+					<td>${vo.totalPrice }</td>
+				</tr>
+			</c:forEach>
+		</tbody>
+	</table>	
+	
+	<form method="post" id="payForm">
+		<input class="form-control" type="hidden" name="totalPrice" value="${vo.totalPrice }">
+		<input class="form-control" type="hidden" name="orderPrice" value="${vo.totalPrice }">
+		<input class="form-control" type="hidden" name="optionNo" value="${vo.optionNo }">
+		<input class="form-control" type="hidden" name="quantity" value="${vo.quantity }">
+		<div class="form-group">
+			<label for="payMethod">결제수단</label>
+			<select class="form-control" id="payMethod" name="payMethod">
+				<option selected="selected">신용카드</option>
+				<option>현금</option>
+			</select>
+		</div>
+	<button type="submit" formaction="pay.do">주문하기</button>
+	</form>
+
+	
+	<div>상품넘버 : ${vo.goodsNo }</div>
+	<div>상품이름 : ${vo.goodsName }</div>
+	<div>옵션넘버 : ${vo.optionNo }</div>
+	<div>컵사이즈 : ${vo.cupSize }</div>
+	<div>컵종류 : ${vo.cup }</div>
+	<div>시럽 : ${vo.syrup }</div>
+	<div>데움 : ${vo.heating }</div>
+	<div>상품수량 : ${vo.quantity }</div>
+	<div>상품가격 : ${vo.totalPrice }</div>
+	<div>총상품금액(전부 다 더하기)</div>
+	<div>총상품수량(전부 다 더하기)</div>
+	
+	<h1>여기서 입력 받아야 할 것 - order테이블에 저장됨</h1>
+	<div>아이디 (세션에서 꺼내오기)</div>
+	<div>총상품금액 (넘어온 상품금액 다 더하기)</div>
+	<div>총주문금액 (할인적용하고 결제하는 금액)</div>
+	<div>결제수단</div>
+	<div>주문일시 - 저절로 입력되겠..지?</div>
+	<div>주문상태 - 이것도 저절로 ..주문완료 상태로..</div>
+	
+	<h1>주문하기 버튼 누르면 실행되는것 - orderDetail 테이블에 insert</h1>
+	<div>위에서 생성된 주문번호</div>
+	<div>위에 나온 옵션번호</div>
+	<div>총 상품수량 - 위에 잇는 상품수량 모두 더하기</div>
+
+</div>
+</body>
+</html>

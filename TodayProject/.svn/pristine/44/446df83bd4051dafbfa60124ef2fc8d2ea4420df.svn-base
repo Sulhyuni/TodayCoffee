@@ -1,0 +1,32 @@
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"%>
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Other</title>
+<script type="text/javascript">
+$(function(){
+	// key를 세팅해 보자.
+	if("${param.key}") $("#key").val("${param.key}");
+	// perPageNum를 세팅해 보자.
+	if("${param.perPageNum}") $("#perPageNum").val("${param.perPageNum}");
+	
+	$(".updateBtn").click(function(){
+		let id = $(this).find(".id").text();
+		location = "view.do?id=" + id 
+		+ "&inc=1&page=${param.page}&perPageNum=${param.perPageNum}"
+		+ "&key=${param.key}&word=${param.word}";
+	});
+});}
+</script>
+</head>
+<body>
+<div class="container">
+<h1 id="id" >${login.id }님 환영합니다.${vo.pw }${login.pw }</h1>
+<button id="updateBtn" name="updateBtn">개인정보 관리</button>
+<button>나만의 메뉴</button>
+<button>계정 정보 관리</button>
+</div>
+</body>
+</html>

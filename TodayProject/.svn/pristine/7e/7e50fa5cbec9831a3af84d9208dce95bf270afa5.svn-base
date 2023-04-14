@@ -1,0 +1,123 @@
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+	pageEncoding="UTF-8"%>
+<%@taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
+<!DOCTYPE html>
+<html>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script
+	src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.1/jquery.min.js"></script>
+<script
+	src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+<script type="text/javascript">
+	$(function(){
+		$("#update").click(function(){
+			let CartNo = $(this).data("no");
+			location = "list.do?no="+cartNo;
+		});
+	});
+	
+	function count(type) {
+		// 결과를 표시할 element
+		const resultElement = document.getElementById('result');
+
+		// 현재 화면에 표시된 값
+		let number = resultElement.innerText;
+
+		// 더하기/빼기
+		if (type === 'plus') {
+			number = parseInt(number) + 1;
+		} else if (type === 'minus') {
+			number = parseInt(number) - 1;
+		}
+
+		// 결과 출력
+		resultElement.innerText = number;
+	}
+</script>
+<title>장바구니</title>
+
+</head>
+<body>
+	<div class="container">
+		<div class="col-md-12">
+			<a href="alldelete.do"><button
+					style="float: right; margin-bottom: 10px;">전체삭제</button></a> <a
+				href="selectdelete.do"><button
+					style="float: right; margin-bottom: 10px;">선택삭제</button></a> <a
+				href="/order.do"><button
+					style="float: right; margin-bottom: 10px;">주문하기</button></a>
+			<h2>장바구니</h2>
+		</div>
+		<div class="col-md-12">
+			<hr>
+		</div>
+		<div class="row">
+			<!-- c:forEach 의 속성 중 반복 회수가 저장 되어있는 varStatus 변수의 상태 -->
+			<c:forEach items="${list }" var="vo" varStatus="vs">
+				<c:if test="${vs.index != 0 && vs.index % 4 == 0}">
+			${"</div>"}
+			${"<div class = \"row\">"}
+		</c:if>
+				<div class="col-md-3" data-no="${vo.goodsNo }">
+					<input type="checkbox" name="myCheckbox" value="myValue">
+					<div class="thumbnail">
+						<img src="${vo.fileName }" alt="${vo.fileName }"
+							style="width: 100%">
+						<div class="caption">
+							<div>${vo.name_kr }</div>
+							<p>
+								옵션 : ${vo.goodsDiv }/ ${vo.cup_size }/${vo.cup }/<br />시럽:${vo.syrup }
+								<br />수량 :${vo.quantity }가격:${vo.price * vo.quantity }
+								<button type="button"class="btn btn-default"data-toggle="modal"data-target="#upModal" >수량변경</button>
+								<!-- Modal -->
+							<div id="upModal" class="modal fade" role="dialog">
+								<div class="modal-dialog">
+
+									<!-- Modal-content -->
+									<div class="modal-content">
+										<div class="modal-header">
+											<button type="button" class="close" data-dismiss="modal">X</button>
+											<h4 class="modal-title">장바구니 수량 변경</h4>
+											<p>수량 변경을 위하면 +- 버튼을 눌러주세요</p>
+										</div>
+										<div class="modal-body" id="updateForm">
+											<form action="update.do" method="post" id="updateForm">
+												<input type='button' onclick='count("plus")' value='+' /> 
+												<div id='result'>${vo.quantity }</div>
+												<input type='button' onclick='count("minus")' value='-' />
+												<button class="btn btn-default pull-right">수정</button>
+												<p>카트번호${vo.cartNo }</p>
+											</form>
+										</div>
+										<div class="modal-footer"></div>
+										<script type="text/javascript">
+	function count(type) {
+		// 결과를 표시할 element
+		const resultElement = document.getElementById('result');
+
+		// 현재 화면에 표시된 값
+		let number = resultElement.innerText;
+
+		// 더하기/빼기
+		if (type === 'plus') {
+			number = parseInt(number) + 1;
+		} else if (type === 'minus') {
+			number = parseInt(number) - 1;
+		}
+
+		// 결과 출력
+		resultElement.innerText = number;
+	}
+</script>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</c:forEach>
+		</div>
+	</div>
+</body>
+</html>

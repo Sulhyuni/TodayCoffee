@@ -1,0 +1,53 @@
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+	pageEncoding="UTF-8"%>
+<%@taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
+<!DOCTYPE html>
+<html>
+<head>
+<title>Home</title>
+<meta charset="UTF-8">
+<meta name="viewport"
+	content="width=device-width, initial-scale=1, user-scalable=no" />
+<style type="text/css">
+#main1 {
+	border-top: solid 5px #c7bbad;
+	border-top-width: 35px;
+	padding: 3em 0 0 0;
+}
+</style>
+</head>
+<body>
+	<!-- Banner -->
+	<section id="banner">
+		<div class="content">
+			<h2>Welcome to Today Coffee</h2>
+			<p>Sip, Savor, and Enjoy: A Coffee Experience Like No Other at
+				Our Cafe</p>
+			<a href="#main1" class="button scrolly">Experience</a>
+		</div>
+	</section>
+
+	<!-- Main -->
+	<section id="main1">
+		<div class="container">
+			<section class="box blog">
+				<h2 class="major">
+					<span>Notice &amp; Event</span>
+				</h2>
+
+			</section>
+
+
+			<section class="box blog">
+				<h2 class="major">
+						<span>Product</span>
+				</h2>
+					<div>
+					상품 미리보기 4개정도만
+					</div>
+			</section>
+		</div>
+	</section>
+
+</body>
+</html>

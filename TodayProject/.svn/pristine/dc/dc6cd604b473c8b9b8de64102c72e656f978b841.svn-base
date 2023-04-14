@@ -1,0 +1,17 @@
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+	pageEncoding="UTF-8"%>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
+
+<!-- jspf는 조각파일이라고 생각하면 됨. html, head, body 태그 필요 없음 -->
+<div class="row">
+	<c:forEach items="${goodsList }" var="vo" varStatus="vs">
+		<div class="col-md-3 dataRow goods" data-no="${vo.goodsNo }">
+			<div>
+				<img src="${vo.fileName }" alt="${vo.fileName }" style="width: 100%">
+				<div class="caption" style="text-align: center; font-size: 1.2em; height: 40px; font-weight: bold;">
+					<p>${vo.name_kr }</p>
+				</div>
+			</div>
+		</div>
+	</c:forEach>
+</div>

@@ -1,0 +1,26 @@
+package com.today.member.service;
+
+import com.today.main.ServiceInterface;
+import com.today.member.dao.MemberDAO;
+
+public class MemberFindPwServiceImpl implements ServiceInterface {
+	
+	private MemberDAO dao;
+
+	@Override
+	public void setDao(Object obj) {
+		// TODO Auto-generated method stub
+		this.dao = (MemberDAO)obj;
+	}
+
+	@Override
+	public Object service(Object obj) throws Exception {
+		// TODO Auto-generated method stub
+		String pw = (String) obj;
+		System.out.println
+		("MemberFindPwServiceImpl.service().pw : " + pw);
+		return dao.findPw(pw);
+		
+	}
+
+}

@@ -1,0 +1,28 @@
+package com.today.goods.dao;
+
+import java.util.List;
+
+import com.today.goods.vo.GoodsVO;
+
+public interface GoodsDAO {
+	
+	//list ( 리턴 타입 List<GoodsVO>, 전달되는 데이터는 없다-> list( )
+	public List<GoodsVO> list() throws Exception;
+	
+	//view 리턴타입 GoodsVO. 전달되는 데이터 long 타입의 no ( 번호 클릭시 해당 게시글 보기)
+	public GoodsVO view(long no) throws Exception;
+	
+	//write 리턴타입-Integer(1행이 삽입되었습니다.) 전달되는 데이터 vo (vo에 데이터를 저장하기때문)
+	public Integer write(GoodsVO vo)  throws Exception;
+	
+	//update 리턴타입-Integer(1행이 삽입되었습니다.) 전달되는 데이터 vo (vo에 데이터를 저장하기때문)
+	public Integer update(GoodsVO vo) throws Exception;
+	
+	//이미지 업데이트
+	public Integer updateImg(GoodsVO vo) throws Exception;
+
+	//delete 리턴타입 -Integer(1행이 삭제되었습니다.) 전달되는 데이터 long 타입의 no. (번호 클릭시 해당 게시물 삭제)
+	public Integer delete(long no) throws Exception;
+
+
+}

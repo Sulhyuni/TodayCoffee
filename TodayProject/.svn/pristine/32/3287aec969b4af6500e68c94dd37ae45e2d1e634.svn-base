@@ -1,0 +1,33 @@
+package com.today.member.dao;
+
+import java.util.List;
+
+import com.today.member.vo.MemberVO;
+import com.webjjang.util.PageObject;
+
+public interface MemberDAO {
+
+	//로그인
+	public MemberVO login(MemberVO inVO) throws Exception;
+
+	//회원가입
+	public int write(MemberVO vo) throws Exception;
+
+	//회원리스트
+	public List<MemberVO> list(PageObject pageObject) throws Exception;
+	
+	//전체페이지
+	public long getTotalRow(PageObject pageObject) throws Exception;
+	
+	//회원상세보기
+	public MemberVO view(String id) throws Exception;
+
+	//아이디 중복체크
+	public int checkId(String id) throws Exception;
+	
+	//아이디 찾기
+	public String findId(MemberVO vo) throws Exception;
+	
+	//비밀번호 찾기
+	public String findPw(String id) throws Exception;
+}

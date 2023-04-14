@@ -1,0 +1,12 @@
+package com.today.member.dao;
+
+import com.today.member.vo.MemberVO;
+
+public interface MemberDAO {
+
+	public MemberVO login(MemberVO inVO) throws Exception;
+
+	public int write(MemberVO vo) throws Exception;
+
+	
+}

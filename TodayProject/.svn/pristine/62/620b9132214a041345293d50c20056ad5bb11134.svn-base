@@ -1,0 +1,57 @@
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"%>
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.1/jquery.min.js"></script>
+ <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+<script type="text/javascript">
+
+$(function(){
+	$("#loginBtn").click(function(){
+		location="/member/login.do";
+	});
+	
+	$("#findPw").click(function(){
+		location="/member/findPw.do";
+	});
+	
+});
+$(function(){
+	// 삭제 버튼 이벤트 처리 - a tag
+	$("#changePw").click(function(){
+		$("#updateDiv").slideDown(); // 보이게
+		return false; // 페이지 전송 a 취소
+	});
+	$("#cancelUpdateBtn").click(function(){
+		$("#updateDiv").slideUp(); // 사라지게
+	});
+});
+</script>
+</head>
+<body>
+<div class="container">
+	<h1 style="font-size: xx-large;">찾은 비밀번호 확인</h1>
+	<table class="table" style="box-sizing: border-box;">
+		<tr>
+			<th style="font-size: x-large;">비밀번호:</th>
+			<td style="font-size: x-large;">${pw }</td>
+		</tr>
+	</table>
+	
+	<button  id="loginBtn">로그인</button>
+	<button  id="changePw">바로 비밀번호 변경하기</button>
+	<div id="updateDiv" class="well">
+		<form action="update.do" method="post">
+			<input type="hidden" name="perPageNum" value="${param.perPageNum }">
+			<input type="hidden" name="no" value="${vo.no }">
+			
+			<button>변경하기</button>
+			<button type="button" id="cancelUpdateBtn">취소</button>
+		</form>
+	</div>
+	
+</div>
+</body>
+</html>

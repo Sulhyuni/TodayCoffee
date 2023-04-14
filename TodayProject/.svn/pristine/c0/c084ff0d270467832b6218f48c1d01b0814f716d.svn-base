@@ -1,0 +1,516 @@
+package com.today.member.dao;
+
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
+
+import com.today.io.db.DB;
+import com.today.member.vo.MemberVO;
+import com.webjjang.util.PageObject;
+
+public class MemberDAOImpl implements MemberDAO{
+
+	//필요한 객체
+		private Connection con = null;
+		private PreparedStatement pstmt = null;
+		private ResultSet rs = null;
+	
+	@Override
+	public MemberVO login(MemberVO inVO) throws Exception {
+		// TODO Auto-generated method stub
+		System.out.println("MemberDAOImpl.login().inVO : " + inVO);
+		MemberVO vo = null;
+		try {
+			con = DB.getConnection();
+			String sql = "select m.id, m.name, m.gradeNo, g.gradeName, m.point "
+					+ " from member m, grade g "
+					+ " where (id = ? and pw = ?) and (g.gradeNo = m.gradeNo)";
+			System.out.println("sql : " + sql);
+			pstmt = con.prepareStatement(sql);
+			pstmt.setString(1, inVO.getId());
+			pstmt.setString(2, inVO.getPw());
+			rs = pstmt.executeQuery();
+			if(rs!=null&&rs.next()) {
+				vo = new MemberVO();
+				vo.setId(rs.getString("id"));
+				vo.setName(rs.getString("name"));
+				vo.setPoint(rs.getInt("point"));
+				vo.setGradeNo(rs.getInt("gradeNo"));
+				vo.setGradeName(rs.getString("gradeName"));
+			}
+		} catch (Exception e) {
+			// TODO: handle exception
+			e.printStackTrace();
+			throw new Exception("로그인 DB처리중 오류 발생");
+		}finally {
+			DB.close(con, pstmt, rs);
+		}
+		
+		
+		return vo;
+	}// end of login() 
+
+	@Override
+	public int write(MemberVO vo) throws Exception{
+		// TODO Auto-generated method stub
+		System.out.println("MemberDAOImpl.write().vo : " + vo);
+		int result = 0;
+		try {
+			con = DB.getConnection();
+			String sql = "insert into member(id,pw,name,gender,birth,tel1,tel2,tel3,email)values (?,?,?,?,?,?,?,?,?)";
+			System.out.println("sql : " + sql);
+			pstmt = con.prepareStatement(sql);
+			pstmt.setString(1, vo.getId());
+			pstmt.setString(2, vo.getPw());
+			pstmt.setString(3, vo.getName());
+			pstmt.setString(4, vo.getGender());
+			pstmt.setString(5, vo.getBirth());
+			pstmt.setString(6, vo.getTel1());
+			pstmt.setString(7, vo.getTel2());
+			pstmt.setString(8, vo.getTel3());
+			pstmt.setString(9, vo.getEmail());
+			result = pstmt.executeUpdate();
+			System.out.println(result);
+		} catch (Exception e) {
+			// TODO: handle exception
+			e.printStackTrace();
+			throw new Exception("회원가입 DB처리중 오류 발생");
+		}finally {
+			DB.close(con, pstmt);
+		}
+		return result;
+	}
+
+	@Override
+	public List<MemberVO> list(PageObject pageObject) throws Exception {
+		// TODO Auto-generated method stub
+		System.out.println("MemberDAOImpl.list()");
+		// 결과를  전달되는 변수
+		List<MemberVO> list = null;
+		try {
+			// 1. 드라이버확인 2. 연결
+			con = DB.getConnection();
+			// 3. sql
+			// 3-1. 원본 데이터 가져오기
+			String sql = "select m.id,m.name,m.gender,m.birth,m.tel1,m.tel2,m.tel3,m.email,m.status,g.gradeName,m.point "
+					+ " from grade g, member m where (m.gradeNo = g.gradeNo) ";
+			//검색 조건 처리
+			sql += searchSQL(pageObject);
+			sql	+= " order by id asc";
+			// 3-2. 순서번호 붙이기
+			sql = "select rownum rnum,id,name,gender,birth,tel1,tel2,tel3,email,status,gradeName,point "
+				+ " from (" + sql + ")";
+			// 3-3. 페이지 데이터 조건문
+			sql = "select rnum, id,name,gender,birth,tel1,tel2,tel3,email,status,gradeName,point "
+					+ " from (" + sql + ") where rnum between ? and ?";
+			
+			System.out.println("MemberDAOImpl.list().sql=" + sql);
+			// 4. 실행객체 & 데이터세팅
+			pstmt = con.prepareStatement(sql);
+			int idx = 0;
+			// 검색에 대한 데이터 세팅
+			idx = searchDataSet(pageObject, idx);
+			pstmt.setLong(++idx, pageObject.getStartRow());
+			pstmt.setLong(++idx, pageObject.getEndRow());
+			// 5. 실행 -> rs
+			rs = pstmt.executeQuery();
+			// 6. 데이터 저장 - list
+			// rs가 null이 아니면 처리하자
+			if(rs != null) {
+				// rs에 다음 데이터가 있으면
+				while(rs.next()) {
+					// list가 null이면 한번만 생성
+					if(list == null) list = new ArrayList<>();
+					// 데이터를 담을 vo 객체 생성
+					MemberVO vo = new MemberVO();
+					// rs에 데이터를 꺼내서 vo에 담는다.
+					vo.setId(rs.getString("id"));
+					vo.setName(rs.getString("name"));
+					vo.setGender(rs.getString("gender"));
+					vo.setBirth(rs.getString("birth"));
+					vo.setTel1(rs.getString("tel1"));
+					vo.setTel2(rs.getString("tel2"));
+					vo.setTel3(rs.getString("tel3"));
+					vo.setEmail(rs.getString("email"));
+					vo.setStatus(rs.getString("status"));
+					vo.setGradeName(rs.getString("gradeName"));
+					vo.setPoint(rs.getInt("point"));
+					// 데이터가 담긴 vo를 list에 담는다.
+					list.add(vo);
+				}// end of while
+			}// end of if
+		}catch (Exception e) {
+			// TODO: handle exception
+			e.printStackTrace(); // 개발자를 위한 코드
+			throw new Exception("회원 리스트 DB 처리 중 오류 발생");
+		}finally {
+			// 7. 닫기
+			DB.close(con, pstmt, rs);
+		}// end of try ~ catch ~ finally
+		
+		return list;
+	}// end of list()
+	
+	// 검색을 위한 sql 추가 작성
+		private String searchSQL(PageObject pageObject) {
+			String sql ="";
+			//검색 조건 처리
+			String word = pageObject.getWord();
+			String key = pageObject.getKey();
+			if(word!=null && !word.equals("")) {
+				sql += "where (1=0 ";
+				if(key.indexOf("t") >= 0) sql += "or title like ? ";
+				if(key.indexOf("c") >= 0) sql += "or content like ? ";
+				if(key.indexOf("w") >= 0) sql += "or writer like ? ";
+				sql += ") ";
+			}
+			return sql;
+		}
+		
+		//검색을 위한 데이터 세팅
+		private int searchDataSet(PageObject pageObject, int idx) throws SQLException {
+			String word = pageObject.getWord();
+			String key = pageObject.getKey();
+			if(word!=null && !word.equals("")) {
+				if(key.indexOf("t") >= 0) pstmt.setString(++idx, "%"+word+"%");
+				if(key.indexOf("c") >= 0) pstmt.setString(++idx, "%"+word+"%");
+				if(key.indexOf("w") >= 0) pstmt.setString(++idx, "%"+word+"%");
+			}
+			return idx;
+		}
+
+	@Override
+	public long getTotalRow(PageObject pageObject) throws Exception {
+		System.out.println("MemberDAOImpl.getToatalRow().pageObject : " + pageObject);
+		// 결과를  전달되는 변수
+		long totalRow = 0;
+		
+		try {
+			// 1. 드라이버확인 2. 연결
+			con = DB.getConnection();
+			// 3. sql
+			String sql = "select count(*) from member ";
+			sql += searchSQL(pageObject);
+			System.out.println("MemberDAOImpl.getToatalRow().sql" + sql);
+			// 4. 실행객체 & 데이터세팅
+			pstmt = con.prepareStatement(sql);
+			int idx = 0;
+			idx = searchDataSet(pageObject, idx);
+			// 5. 실행 -> rs
+			rs = pstmt.executeQuery();
+			// 6. 데이터 저장 - list
+			// rs가 null이 아니면 처리하자
+			if((rs != null) && rs.next()) {
+				// rs에 다음 데이터가 있으면
+				totalRow = rs.getLong(1);
+			}// end of if
+		}catch (Exception e) {
+			// TODO: handle exception
+			e.printStackTrace(); // 개발자를 위한 코드
+			throw new Exception("회원 리스트를 위한 전체 데이터 개수 DB 처리 중 오류 발생");
+		}finally {
+			// 7. 닫기
+			DB.close(con, pstmt, rs);
+		}// end of try ~ catch ~ finally
+		
+		return totalRow;
+	}
+
+	@Override
+	public MemberVO view(String id) throws Exception {
+		System.out.println("MemberDAOImpl.view().id : " + id);
+		// 리턴 데이터 선언
+		MemberVO vo = null;
+		
+		try {
+			// 1. 확인 2. 연결
+			con = DB.getConnection();
+			// 3. sql
+			String sql = " select m.id,m.name,m.gender,m.birth,m.tel1,m.tel2,m.tel3,m.email,m.status,m.regDate,m.conDate,m.point,g.gradeName "
+					+ " from member m, grade g "
+					+ " where m.gradeNo=g.gradeNo and id = ?";
+			System.out.println("MemberDAOImpl.view().sql : " + sql);
+			// 4. 실행객체 & 데이터 세팅
+			pstmt = con.prepareStatement(sql);
+			pstmt.setString(1, id);
+			// 5. 실행 -> rs
+			rs = pstmt.executeQuery();
+			// 6. 데이터 저장 - list
+			// rs가 null 이 아니면 처리하자
+			if(rs != null && rs.next()) {
+				// rs에 다음 데이터가 있으면 처리
+				vo = new MemberVO();
+				// rs에 데이터를 꺼내서 vo에 담는다.
+				vo.setId(rs.getString("id"));
+				vo.setName(rs.getString("name"));
+				vo.setGender(rs.getString("gender"));
+				vo.setBirth(rs.getString("birth"));
+				vo.setTel1(rs.getString("tel1"));
+				vo.setTel2(rs.getString("tel2"));
+				vo.setTel3(rs.getString("tel3"));
+				vo.setEmail(rs.getString("email"));
+				vo.setStatus(rs.getString("status"));
+				vo.setRegDate(rs.getString("regDate"));
+				vo.setConDate(rs.getString("conDate"));
+				vo.setPoint(rs.getInt("point"));
+				vo.setGradeName(rs.getString("gradeName"));
+			} // end of if
+		} catch (Exception e) {
+			// TODO: handle exception
+			e.printStackTrace(); // 개발자를 위한 코드
+			throw new Exception("내정보보기 DB 처리 중 오류 발생");
+		} finally {
+			// 7. 닫기
+			DB.close(con, pstmt, rs);
+		} // end of try ~ catch ~ finally
+		
+		
+		return vo;
+	}
+
+	// 아이디 중복체크
+	@Override
+	public int checkId(String id) throws Exception {
+		// TODO Auto-generated method stub
+		int result = 0;
+		try {
+			con = DB.getConnection();
+			String sql = "select id from member where id = ?";
+			System.out.println("checkIdsql : " + sql);
+			pstmt = con.prepareStatement(sql);
+			pstmt.setString(1, id);
+			rs = pstmt.executeQuery();
+			if(rs.next()) {
+				result = 1;
+			}else result = 0;
+		} catch (Exception e) {
+			// TODO: handle exception
+			e.printStackTrace();
+			throw new Exception("아이디중복체크 DB처리중 오류 발생");
+		}finally {
+			DB.close(con, pstmt, rs);
+		}
+		return result;
+	}
+
+	//아이디 찾기
+	@Override
+	public String findId(MemberVO vo) throws Exception {
+		// TODO Auto-generated method stub
+		String id = null;
+		try {
+			con = DB.getConnection();
+			String sql = "select id from member where name=? and birth=? and tel1=? and tel2=? and tel3=?";
+			System.out.println("findId().sql : " + sql);
+			pstmt = con.prepareStatement(sql);
+			pstmt.setString(1, vo.getName());
+			pstmt.setString(2, vo.getBirth());
+			pstmt.setString(3, vo.getTel1());
+			pstmt.setString(4, vo.getTel2());
+			pstmt.setString(5, vo.getTel3());
+			rs = pstmt.executeQuery();
+			if(rs.next()&&rs!=null) {
+				id = rs.getString("id");
+			}
+		} catch (Exception e) {
+			// TODO: handle exception
+			e.printStackTrace();
+			throw new Exception("아이디찾기 DB처리중 오류 발생");
+		}finally {
+			DB.close(con, pstmt, rs);
+		}
+		return id;
+	}
+
+	@Override
+	public String findPw(MemberVO vo) throws Exception {
+		// TODO Auto-generated method stub
+		String pw = null;
+		try {
+			con = DB.getConnection();
+			String sql = "select pw from member where id=? and name=? and tel1=? and tel2=? and tel3=?";
+			System.out.println("findPw().sql : " + sql);
+			pstmt = con.prepareStatement(sql);
+			pstmt.setString(1, vo.getId());
+			pstmt.setString(2, vo.getName());
+			pstmt.setString(3, vo.getTel1());
+			pstmt.setString(4, vo.getTel2());
+			pstmt.setString(5, vo.getTel3());
+			rs = pstmt.executeQuery();
+			if(rs.next()&&rs!=null) {
+				pw = rs.getString("pw");
+			}
+		} catch (Exception e) {
+			// TODO: handle exception
+			e.printStackTrace();
+			throw new Exception("비밀번호찾기 DB처리중 오류 발생");
+		}finally {
+			DB.close(con, pstmt, rs);
+		}
+		return pw;
+	}
+
+	@Override
+	public MemberVO checkPw(MemberVO vo) throws Exception {
+		System.out.println("MemberDAOImpl.checkPw().vo : " + vo);
+		
+		MemberVO checkPwvo = new MemberVO();
+		try {
+			// 1. 확인 2. 연결
+			con = DB.getConnection();
+			// 3. sql
+			String sql = " select m.id,m.pw,m.name,m.gender,m.birth,m.tel1,m.tel2,m.tel3,m.email,m.status,m.regDate,m.conDate,m.point,g.gradeName "
+					+ " from member m, grade g "
+					+ " where m.gradeNo=g.gradeNo and id = ? and pw = ?";
+			System.out.println("MemberDAOImpl.checkPw().sql : " + sql);
+			// 4. 실행객체 & 데이터 세팅
+			pstmt = con.prepareStatement(sql);
+			pstmt.setString(1, vo.getId());
+			pstmt.setString(2, vo.getPw());
+			// 5. 실행 -> rs
+			rs = pstmt.executeQuery();
+			// 6. 데이터 저장 - list
+			// rs가 null 이 아니면 처리하자
+			if(rs != null && rs.next()) {
+				// rs에 다음 데이터가 있으면 처리
+				// rs에 데이터를 꺼내서 vo에 담는다.
+				checkPwvo.setId(rs.getString("id"));
+				checkPwvo.setPw(rs.getString("pw"));
+				checkPwvo.setName(rs.getString("name"));
+				checkPwvo.setGender(rs.getString("gender"));
+				checkPwvo.setBirth(rs.getString("birth"));
+				checkPwvo.setTel1(rs.getString("tel1"));
+				checkPwvo.setTel2(rs.getString("tel2"));
+				checkPwvo.setTel3(rs.getString("tel3"));
+				checkPwvo.setEmail(rs.getString("email"));
+				checkPwvo.setStatus(rs.getString("status"));
+				checkPwvo.setRegDate(rs.getString("regDate"));
+				checkPwvo.setConDate(rs.getString("conDate"));
+				checkPwvo.setPoint(rs.getInt("point"));
+				checkPwvo.setGradeName(rs.getString("gradeName"));
+			} // end of if
+		} catch (Exception e) {
+			// TODO: handle exception
+			e.printStackTrace(); // 개발자를 위한 코드
+			throw new Exception("CheckPw DB 처리 중 오류 발생");
+		} finally {
+			// 7. 닫기
+			DB.close(con, pstmt, rs);
+		} // end of try ~ catch ~ finally
+		
+		
+		return checkPwvo;
+	}
+
+	@Override
+	public int updateConDate(String id) throws Exception {
+		try {
+			con = DB.getConnection();
+			String sql = "UPDATE member SET conDate = sysdate WHERE id = ? ";
+			pstmt = con.prepareStatement(sql);
+			pstmt.setString(1, id);
+			return pstmt.executeUpdate();
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw new Exception();
+		} finally {
+			DB.close(con, pstmt);
+		}
+	
+	}
+
+	@Override
+	public int update(MemberVO vo) throws Exception {
+		// TODO Auto-generated method stub
+		System.out.println("MemberDAOImpl.update().vo : " + vo);
+		int result = 0;
+		try {
+			con = DB.getConnection();
+			String sql = "update member set name=?, birth=?, tel1=?, tel2=?, tel3=?, email=? where id=?";
+			System.out.println("sql : " + sql);
+			pstmt = con.prepareStatement(sql);
+			pstmt.setString(1, vo.getName());
+			pstmt.setString(2, vo.getBirth());
+			pstmt.setString(3, vo.getTel1());
+			pstmt.setString(4, vo.getTel2());
+			pstmt.setString(5, vo.getTel3());
+			pstmt.setString(6, vo.getEmail());
+			pstmt.setString(7, vo.getId());
+			result = pstmt.executeUpdate();
+			System.out.println(result);
+		} catch (Exception e) {
+			// TODO: handle exception
+			e.printStackTrace();
+			throw new Exception("회원 수정 DB처리중 오류 발생");
+		}finally {
+			DB.close(con, pstmt);
+		}
+		return result;
+	}
+
+	@Override
+	public int delete(MemberVO vo) throws Exception {
+		// TODO Auto-generated method stub
+		System.out.println("MemberDAOImpl.delete().vo : " + vo);
+		int result = 0;
+		
+		try {
+			// 1. 확인 2. 연결
+			con = DB.getConnection();
+			// 3. sql
+			String sql = "delete from member "
+					+ " where id = ? and pw = ?";
+			System.out.println("MemberDAOImpl.delete().sql : " + sql);
+			// 4. 실행객체 & 데이터 세팅
+			pstmt = con.prepareStatement(sql);
+			pstmt.setString(1, vo.getId());
+			pstmt.setString(2, vo.getPw());
+			// 5. 실행 -> rs
+			result = pstmt.executeUpdate();
+			// 6. 데이터 저장 - list
+			// rs가 null 이 아니면 처리하자
+			System.out.println("MemberDAOImpl.delete() - 회원탈퇴 완료");
+		} catch (Exception e) {
+			// TODO: handle exception
+			e.printStackTrace(); // 개발자를 위한 코드
+			throw new Exception("회원탈퇴 DB 처리 중 오류 발생");
+		} finally {
+			// 7. 닫기
+			DB.close(con, pstmt);
+		} // end of try ~ catch ~ finally
+		
+		
+		return result;
+	}
+
+	@Override
+	public int changePw(MemberVO vo) throws Exception {
+		// TODO Auto-generated method stub
+		System.out.println("MemberDAOImpl.changePw().vo : " + vo);
+		int result = 0;
+		try {
+			con = DB.getConnection();
+			String sql = "update member set pw=? where id=?";
+			System.out.println("sql : " + sql);
+			pstmt = con.prepareStatement(sql);
+			pstmt.setString(1, vo.getPw());
+			pstmt.setString(2, vo.getId());
+			result = pstmt.executeUpdate();
+			System.out.println(result);
+		} catch (Exception e) {
+			// TODO: handle exception
+			e.printStackTrace();
+			throw new Exception("회원 수정 DB처리중 오류 발생");
+		}finally {
+			DB.close(con, pstmt);
+		}
+		return result;
+	}
+
+
+	
+
+}// end of MemberDAOImpl class

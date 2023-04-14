@@ -1,0 +1,29 @@
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"%>
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Other</title>
+ <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.1/jquery.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+<script type="text/javascript">
+// $(function(){
+// 	// 게시판 한줄을 클릭 이벤트
+// 	$(".updateBtn").click(function(){
+// 		let id = $(this).find(".id").text();
+// 		location = "view.do?id=" + id
+// 	});
+	
+// });
+</script>
+</head>
+<body>
+<div class="container">
+<h1 id="id" class="id" >${login.id }님 환영합니다.</h1>
+<button onclick="location='view.do?id=${login.id }'">개인정보 관리</button>
+<button>나만의 메뉴</button>
+<button>계정 정보 관리</button>
+</div>
+</body>
+</html>

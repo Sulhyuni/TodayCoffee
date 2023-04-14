@@ -1,0 +1,19 @@
+package com.today.order.service;
+
+import com.today.main.ServiceInterface;
+
+public class OrderViewServiceImpl implements ServiceInterface {
+
+	@Override
+	public void setDao(Object dao) {
+		// TODO Auto-generated method stub
+
+	}
+
+	@Override
+	public Object service(Object obj) throws Exception {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+}

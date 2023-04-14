@@ -1,0 +1,286 @@
+package com.today.main;
+
+import java.util.HashMap;
+import java.util.Map;
+
+import com.today.cart.controller.CartController;
+import com.today.cart.dao.CartDAOImpl;
+import com.today.cart.service.CartAddServiceImpl;
+import com.today.cart.service.CartAllDeleteServiceImpl;
+import com.today.cart.service.CartDeleteServiceImpl;
+import com.today.cart.service.CartListServiceImpl;
+import com.today.cart.service.CartOptionAddServiceImpl;
+import com.today.cart.service.CartOptionViewServiceImpl;
+import com.today.cart.service.CartUpdateServiceImpl;
+import com.today.cart.service.CartViewServiceImpl;
+import com.today.goods.controller.GoodsController;
+import com.today.goods.dao.GoodsDAOImpl;
+import com.today.goods.service.GoodsDeleteServiceImpl;
+import com.today.goods.service.GoodsListServiceImpl;
+import com.today.goods.service.GoodsUpdateImgServiceImpl;
+import com.today.goods.service.GoodsUpdateServiceImpl;
+import com.today.goods.service.GoodsViewServiceImpl;
+import com.today.goods.service.GoodsWriteServiceImpl;
+import com.today.member.controller.MemberController;
+import com.today.member.dao.MemberDAOImpl;
+import com.today.member.service.MemberChangePwServiceImpl;
+import com.today.member.service.MemberCheckIdServiceImpl;
+import com.today.member.service.MemberCheckPwServiceImpl;
+import com.today.member.service.MemberDeleteServiceImpl;
+import com.today.member.service.MemberFindIdServiceImpl;
+import com.today.member.service.MemberFindPwServiceImpl;
+import com.today.member.service.MemberListServiceImpl;
+import com.today.member.service.MemberLoginServiceImpl;
+import com.today.member.service.MemberUpdateServiceImpl;
+import com.today.member.service.MemberViewServiceImpl;
+import com.today.member.service.MemberWriteServiceImpl;
+import com.today.mymenu.controller.MyMenuController;
+import com.today.mymenu.dao.MyMenuDAOImpl;
+import com.today.mymenu.service.MyMenuAddServiceImpl;
+import com.today.mymenu.service.MyMenuAllDeleteServiceImpl;
+import com.today.mymenu.service.MyMenuDeleteServiceImpl;
+import com.today.mymenu.service.MyMenuListServiceImpl;
+import com.today.mymenu.service.MyMenuOptionAddServiceImpl;
+import com.today.mymenu.service.MyMenuOptionViewServiceImpl;
+import com.today.mymenu.service.MyMenuUpdateServiceImpl;
+import com.today.mymenu.service.MyMenuViewServiceImpl;
+import com.today.notice.controller.NoticeController;
+import com.today.notice.dao.NoticeDAOImpl;
+import com.today.notice.service.NoticeCurrentListServiceImpl;
+import com.today.notice.service.NoticeDeleteServiceImpl;
+import com.today.notice.service.NoticeLastListServiceImpl;
+import com.today.notice.service.NoticeListServiceImpl;
+import com.today.notice.service.NoticeReservedListServiceImpl;
+import com.today.notice.service.NoticeUpdateServiceImpl;
+import com.today.notice.service.NoticeViewServiceImpl;
+import com.today.notice.service.NoticeWriteServiceImpl;
+import com.today.order.controller.OrderController;
+import com.today.order.dao.OrderDAOImpl;
+import com.today.order.service.OrderCartListServiceImpl;
+import com.today.order.service.OrderDeleteServiceImpl;
+import com.today.order.service.OrderListServiceImpl;
+import com.today.order.service.OrderOptionAddServiceImpl;
+import com.today.order.service.OrderOptionViewServiceImpl;
+import com.today.order.service.OrderUpdateServiceImpl;
+import com.today.order.service.OrderViewServiceImpl;
+import com.today.order.service.OrderWriteServiceImpl;
+
+public class Init {
+	// controller 저장변수 선언
+	private static Map<String, Object> controllerMap = new HashMap<>();
+	private static Map<String, ServiceInterface> serviceMap = new HashMap<>();
+	private static Map<String, Object> daoMap = new HashMap<>();
+	
+	public static void init() {
+		// controller 생성
+		controllerMap.put("noticeController", new NoticeController());
+		controllerMap.put("memberController", new MemberController());
+		controllerMap.put("cartController", new CartController());
+		controllerMap.put("mymenuController", new MyMenuController());
+		controllerMap.put("goodsController", new GoodsController());
+		controllerMap.put("orderController", new OrderController());
+		
+		// dao 생성
+		daoMap.put("noticeDAO", new NoticeDAOImpl());
+		daoMap.put("memberDAO", new MemberDAOImpl());
+		daoMap.put("cartDAO", new CartDAOImpl());
+		daoMap.put("mymenuDAO", new MyMenuDAOImpl());
+		daoMap.put("goodsDAO", new GoodsDAOImpl());
+		daoMap.put("orderDAO", new OrderDAOImpl());
+
+		
+		// Service 생성 - list, view, write, update, delete ...
+		// 공지사항
+		serviceMap.put("noticeListServiceImpl", new NoticeListServiceImpl());
+		serviceMap.put("noticeCurrentListServiceImpl", new NoticeCurrentListServiceImpl());
+		serviceMap.put("noticeLastListServiceImpl", new NoticeLastListServiceImpl());
+		serviceMap.put("noticeReservedListServiceImpl", new NoticeReservedListServiceImpl());
+		serviceMap.put("noticeViewServiceImpl", new NoticeViewServiceImpl());
+		serviceMap.put("noticeWriteServiceImpl", new NoticeWriteServiceImpl());
+		serviceMap.put("noticeUpdateServiceImpl", new NoticeUpdateServiceImpl());
+		serviceMap.put("noticeDeleteServiceImpl", new NoticeDeleteServiceImpl());
+
+		// 회원관리 서비스 생성
+		serviceMap.put("memberLoginServiceImpl", new MemberLoginServiceImpl());
+		serviceMap.put("memberWriteServiceImpl", new MemberWriteServiceImpl());
+		serviceMap.put("memberListServiceImpl", new MemberListServiceImpl());
+		serviceMap.put("memberViewServiceImpl", new MemberViewServiceImpl());
+		serviceMap.put("memberCheckIdServiceImpl", new MemberCheckIdServiceImpl());
+		serviceMap.put("memberFindIdServiceImpl", new MemberFindIdServiceImpl());
+		serviceMap.put("memberFindPwServiceImpl", new MemberFindPwServiceImpl());
+		serviceMap.put("memberChangePwServiceImpl", new MemberChangePwServiceImpl());
+		serviceMap.put("memberCheckPwServiceImpl", new MemberCheckPwServiceImpl());
+		serviceMap.put("memberUpdateServiceImpl", new MemberUpdateServiceImpl());
+		serviceMap.put("memberDeleteServiceImpl", new MemberDeleteServiceImpl());
+
+		// 장바구니 서비스 생성
+		serviceMap.put("cartListServiceImpl", new CartListServiceImpl());
+		serviceMap.put("cartViewServiceImpl", new CartViewServiceImpl());
+		serviceMap.put("cartAddServiceImpl", new CartAddServiceImpl());
+		serviceMap.put("cartUpdateServiceImpl", new CartUpdateServiceImpl());
+		serviceMap.put("cartDeleteServiceImpl", new CartDeleteServiceImpl());
+		serviceMap.put("cartAllDeleteServiceImpl", new CartAllDeleteServiceImpl());
+		serviceMap.put("cartOptionAddServiceImpl", new CartOptionAddServiceImpl());
+		serviceMap.put("cartOptionViewServiceImpl", new CartOptionViewServiceImpl());
+		
+		// 나만의 메뉴 서비스 생성
+		serviceMap.put("mymenuListServiceImpl", new MyMenuListServiceImpl());
+		serviceMap.put("mymenuViewServiceImpl", new MyMenuViewServiceImpl());
+		serviceMap.put("mymenuAddServiceImpl",  new MyMenuAddServiceImpl());
+		serviceMap.put("mymenuUpdateServiceImpl",  new MyMenuUpdateServiceImpl());
+		serviceMap.put("mymenuDeleteServiceImpl",  new MyMenuDeleteServiceImpl());
+		serviceMap.put("mymenuAllDeleteServiceImpl",  new MyMenuAllDeleteServiceImpl());
+		serviceMap.put("mymenuOptionAddServiceImpl",  new MyMenuOptionAddServiceImpl());
+		serviceMap.put("mymenuOptionViewServiceImpl",  new MyMenuOptionViewServiceImpl());
+		
+		// 상품관리 서비스 생성
+		serviceMap.put("goodsListServiceImpl", new GoodsListServiceImpl());
+		serviceMap.put("goodsViewServiceImpl", new GoodsViewServiceImpl());
+		serviceMap.put("goodsWriteServiceImpl", new GoodsWriteServiceImpl());
+		serviceMap.put("goodsUpdateServiceImpl", new GoodsUpdateServiceImpl());
+		serviceMap.put("goodsUpdateImgServiceImpl", new GoodsUpdateImgServiceImpl());
+		serviceMap.put("goodsDeleteServiceImpl", new GoodsDeleteServiceImpl());
+		
+		// 주문관리 서비스 생성
+		serviceMap.put("orderListServiceImpl", new OrderListServiceImpl());
+		serviceMap.put("orderViewServiceImpl", new OrderViewServiceImpl());
+		serviceMap.put("orderWriteServiceImpl", new OrderWriteServiceImpl());
+		serviceMap.put("orderUpdateServiceImpl", new OrderUpdateServiceImpl());
+		serviceMap.put("orderDeleteServiceImpl", new OrderDeleteServiceImpl());
+		serviceMap.put("orderOptionAddServiceImpl", new OrderOptionAddServiceImpl());
+		serviceMap.put("orderOptionViewServiceImpl", new OrderOptionViewServiceImpl());
+		serviceMap.put("orderCartListServiceImpl", new OrderCartListServiceImpl());
+		
+		
+		//dao -> service : 조립
+		// 공지사항
+		serviceMap.get("noticeListServiceImpl").setDao(daoMap.get("noticeDAO"));
+		serviceMap.get("noticeReservedListServiceImpl").setDao(daoMap.get("noticeDAO"));
+		serviceMap.get("noticeLastListServiceImpl").setDao(daoMap.get("noticeDAO"));
+		serviceMap.get("noticeCurrentListServiceImpl").setDao(daoMap.get("noticeDAO"));
+		serviceMap.get("noticeViewServiceImpl").setDao(daoMap.get("noticeDAO"));
+		serviceMap.get("noticeWriteServiceImpl").setDao(daoMap.get("noticeDAO"));
+		serviceMap.get("noticeUpdateServiceImpl").setDao(daoMap.get("noticeDAO"));
+		serviceMap.get("noticeDeleteServiceImpl").setDao(daoMap.get("noticeDAO"));	
+		
+		// 회원관리 조립
+		serviceMap.get("memberLoginServiceImpl").setDao(daoMap.get("memberDAO"));
+		serviceMap.get("memberWriteServiceImpl").setDao(daoMap.get("memberDAO"));
+		serviceMap.get("memberListServiceImpl").setDao(daoMap.get("memberDAO"));
+		serviceMap.get("memberViewServiceImpl").setDao(daoMap.get("memberDAO"));
+		serviceMap.get("memberCheckIdServiceImpl").setDao(daoMap.get("memberDAO"));
+		serviceMap.get("memberFindIdServiceImpl").setDao(daoMap.get("memberDAO"));
+		serviceMap.get("memberFindPwServiceImpl").setDao(daoMap.get("memberDAO"));
+		serviceMap.get("memberChangePwServiceImpl").setDao(daoMap.get("memberDAO"));
+		serviceMap.get("memberCheckPwServiceImpl").setDao(daoMap.get("memberDAO"));
+		serviceMap.get("memberUpdateServiceImpl").setDao(daoMap.get("memberDAO"));
+		serviceMap.get("memberDeleteServiceImpl").setDao(daoMap.get("memberDAO"));
+		
+		// 장바구니 조립
+		serviceMap.get("cartListServiceImpl").setDao(daoMap.get("cartDAO"));
+		serviceMap.get("cartViewServiceImpl").setDao(daoMap.get("cartDAO"));
+		serviceMap.get("cartAddServiceImpl").setDao(daoMap.get("cartDAO"));
+		serviceMap.get("cartUpdateServiceImpl").setDao(daoMap.get("cartDAO"));
+		serviceMap.get("cartDeleteServiceImpl").setDao(daoMap.get("cartDAO"));
+		serviceMap.get("cartAllDeleteServiceImpl").setDao(daoMap.get("cartDAO"));
+		serviceMap.get("cartOptionAddServiceImpl").setDao(daoMap.get("cartDAO"));
+		serviceMap.get("cartOptionViewServiceImpl").setDao(daoMap.get("cartDAO"));
+		
+		// 나만의 메뉴 조립
+		serviceMap.get("mymenuListServiceImpl").setDao(daoMap.get("mymenuDAO"));
+		serviceMap.get("mymenuViewServiceImpl").setDao(daoMap.get("mymenuDAO"));
+		serviceMap.get("mymenuAddServiceImpl").setDao(daoMap.get("mymenuDAO"));
+		serviceMap.get("mymenuUpdateServiceImpl").setDao(daoMap.get("mymenuDAO"));
+		serviceMap.get("mymenuDeleteServiceImpl").setDao(daoMap.get("mymenuDAO"));
+		serviceMap.get("mymenuAllDeleteServiceImpl").setDao(daoMap.get("mymenuDAO"));
+		serviceMap.get("mymenuOptionAddServiceImpl").setDao(daoMap.get("mymenuDAO"));
+		serviceMap.get("mymenuOptionViewServiceImpl").setDao(daoMap.get("mymenuDAO"));
+		
+		// 상품관리 조립
+		serviceMap.get("goodsListServiceImpl").setDao(daoMap.get("goodsDAO"));
+		serviceMap.get("goodsViewServiceImpl").setDao(daoMap.get("goodsDAO"));
+		serviceMap.get("goodsWriteServiceImpl").setDao(daoMap.get("goodsDAO"));
+		serviceMap.get("goodsUpdateServiceImpl").setDao(daoMap.get("goodsDAO"));
+		serviceMap.get("goodsUpdateImgServiceImpl").setDao(daoMap.get("goodsDAO"));
+		serviceMap.get("goodsDeleteServiceImpl").setDao(daoMap.get("goodsDAO"));	
+		
+		// 주문관리 조립
+		serviceMap.get("orderListServiceImpl").setDao(daoMap.get("orderDAO"));
+		serviceMap.get("orderViewServiceImpl").setDao(daoMap.get("orderDAO"));
+		serviceMap.get("orderWriteServiceImpl").setDao(daoMap.get("orderDAO"));
+		serviceMap.get("orderUpdateServiceImpl").setDao(daoMap.get("orderDAO"));
+		serviceMap.get("orderDeleteServiceImpl").setDao(daoMap.get("orderDAO"));	
+		serviceMap.get("orderOptionAddServiceImpl").setDao(daoMap.get("orderDAO"));	
+		serviceMap.get("orderOptionViewServiceImpl").setDao(daoMap.get("orderDAO"));	
+		serviceMap.get("orderCartListServiceImpl").setDao(daoMap.get("orderDAO"));	
+		
+		
+		// service -> controller : 조립
+		// 공지사항
+		((NoticeController)(controllerMap.get("noticeController"))).setNoticeListService(serviceMap.get("noticeListServiceImpl"));
+		((NoticeController)(controllerMap.get("noticeController"))).setNoticeReservedListService(serviceMap.get("noticeReservedListServiceImpl"));
+		((NoticeController)(controllerMap.get("noticeController"))).setNoticeLastListService(serviceMap.get("noticeLastListServiceImpl"));
+		((NoticeController)(controllerMap.get("noticeController"))).setNoticeCurrentListService(serviceMap.get("noticeCurrentListServiceImpl"));
+		((NoticeController)(controllerMap.get("noticeController"))).setNoticeViewService(serviceMap.get("noticeViewServiceImpl"));
+		((NoticeController)(controllerMap.get("noticeController"))).setNoticeWriteService(serviceMap.get("noticeWriteServiceImpl"));
+		((NoticeController)(controllerMap.get("noticeController"))).setNoticeUpdateService(serviceMap.get("noticeUpdateServiceImpl"));
+		((NoticeController)(controllerMap.get("noticeController"))).setNoticeDeleteService(serviceMap.get("noticeDeleteServiceImpl"));		
+		
+		// 회원관리
+		((MemberController)(controllerMap.get("memberController"))).setMemberLoginService(serviceMap.get("memberLoginServiceImpl"));
+		((MemberController)(controllerMap.get("memberController"))).setMemberWriteService(serviceMap.get("memberWriteServiceImpl"));
+		((MemberController)(controllerMap.get("memberController"))).setMemberListService(serviceMap.get("memberListServiceImpl"));
+		((MemberController)(controllerMap.get("memberController"))).setMemberViewService(serviceMap.get("memberViewServiceImpl"));
+		((MemberController)(controllerMap.get("memberController"))).setMemberCheckIdService(serviceMap.get("memberCheckIdServiceImpl"));
+		((MemberController)(controllerMap.get("memberController"))).setMemberFindIdService(serviceMap.get("memberFindIdServiceImpl"));
+		((MemberController)(controllerMap.get("memberController"))).setMemberFindPwService(serviceMap.get("memberFindPwServiceImpl"));
+		((MemberController)(controllerMap.get("memberController"))).setMemberChangePwService(serviceMap.get("memberChangePwServiceImpl"));
+		((MemberController)(controllerMap.get("memberController"))).setMemberCheckPwService(serviceMap.get("memberCheckPwServiceImpl"));
+		((MemberController)(controllerMap.get("memberController"))).setMemberUpdateService(serviceMap.get("memberUpdateServiceImpl"));
+		((MemberController)(controllerMap.get("memberController"))).setMemberDeleteService(serviceMap.get("memberDeleteServiceImpl"));
+
+		// 장바구니
+		((CartController)(controllerMap.get("cartController"))).setCartListService(serviceMap.get("cartListServiceImpl"));
+		((CartController)(controllerMap.get("cartController"))).setCartViewService(serviceMap.get("cartViewServiceImpl"));
+		((CartController)(controllerMap.get("cartController"))).setCartAddService(serviceMap.get("cartAddServiceImpl"));
+		((CartController)(controllerMap.get("cartController"))).setCartUpdateService(serviceMap.get("cartUpdateServiceImpl"));
+		((CartController)(controllerMap.get("cartController"))).setCartDeleteService(serviceMap.get("cartDeleteServiceImpl"));
+		((CartController)(controllerMap.get("cartController"))).setCartAllDeleteService(serviceMap.get("cartAllDeleteServiceImpl"));
+		((CartController)(controllerMap.get("cartController"))).setCartOptionAddService(serviceMap.get("cartOptionAddServiceImpl"));
+		((CartController)(controllerMap.get("cartController"))).setCartOptionViewService(serviceMap.get("cartOptionViewServiceImpl"));
+		
+		// 나만의 메뉴
+		((MyMenuController)(controllerMap.get("mymenuController"))).setMyMenuListService(serviceMap.get("mymenuListServiceImpl"));
+		((MyMenuController)(controllerMap.get("mymenuController"))).setMyMenuViewService(serviceMap.get("mymenuViewServiceImpl"));
+		((MyMenuController)(controllerMap.get("mymenuController"))).setMyMenuAddService(serviceMap.get("mymenuAddServiceImpl"));
+		((MyMenuController)(controllerMap.get("mymenuController"))).setMyMenuUpdateService(serviceMap.get("mymenuUpdateServiceImpl"));
+		((MyMenuController)(controllerMap.get("mymenuController"))).setMyMenuDeleteService(serviceMap.get("mymenuDeleteServiceImpl"));
+		((MyMenuController)(controllerMap.get("mymenuController"))).setMyMenuAllDeleteService(serviceMap.get("mymenuAllDeleteServiceImpl"));
+		((MyMenuController)(controllerMap.get("mymenuController"))).setMyMenuOptionAddService(serviceMap.get("mymenuOptionAddServiceImpl"));
+		((MyMenuController)(controllerMap.get("mymenuController"))).setMyMenuOptionViewService(serviceMap.get("mymenuOptionViewServiceImpl"));
+		
+		// 상품관리
+		((GoodsController)(controllerMap.get("goodsController"))).setGoodsListService(serviceMap.get("goodsListServiceImpl"));
+		((GoodsController)(controllerMap.get("goodsController"))).setGoodsViewService(serviceMap.get("goodsViewServiceImpl"));
+		((GoodsController)(controllerMap.get("goodsController"))).setGoodsWriteService(serviceMap.get("goodsWriteServiceImpl"));
+		((GoodsController)(controllerMap.get("goodsController"))).setGoodsUpdateService(serviceMap.get("goodsUpdateServiceImpl"));
+		((GoodsController)(controllerMap.get("goodsController"))).setGoodsUpdateImgService(serviceMap.get("goodsUpdateImgServiceImpl"));
+		((GoodsController)(controllerMap.get("goodsController"))).setGoodsDeleteService(serviceMap.get("goodsDeleteServiceImpl"));
+		
+		// 주문관리
+		((OrderController)(controllerMap.get("orderController"))).setOrderListService(serviceMap.get("orderListServiceImpl"));
+		((OrderController)(controllerMap.get("orderController"))).setOrderViewService(serviceMap.get("orderViewServiceImpl"));
+		((OrderController)(controllerMap.get("orderController"))).setOrderWriteService(serviceMap.get("orderWriteServiceImpl"));
+		((OrderController)(controllerMap.get("orderController"))).setOrderUpdateService(serviceMap.get("orderUpdateServiceImpl"));
+		((OrderController)(controllerMap.get("orderController"))).setOrderDeleteService(serviceMap.get("orderDeleteServiceImpl"));		
+		((OrderController)(controllerMap.get("orderController"))).setGoodsViewService(serviceMap.get("goodsViewServiceImpl"));		
+		((OrderController)(controllerMap.get("orderController"))).setOrderOptionAddService(serviceMap.get("orderOptionAddServiceImpl"));		
+		((OrderController)(controllerMap.get("orderController"))).setOrderOptionViewService(serviceMap.get("orderOptionViewServiceImpl"));		
+		((OrderController)(controllerMap.get("orderController"))).setOrderCartListService(serviceMap.get("orderCartListServiceImpl"));		
+	}
+	
+	// controller 꺼내가기 - 변수가 private이라서 직접 사용 할 수 없고 getter를 이용해서 꺼내간다.
+	public static Object getController(String key) {
+		return controllerMap.get(key);
+	}
+}

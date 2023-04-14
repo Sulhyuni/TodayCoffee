@@ -1,0 +1,46 @@
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"%>
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Order Write</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.1/jquery.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+</head>
+<body>
+<div class="container">
+	<h1>옵션 선택</h1>
+	<form method="post" id="writeForm">
+		<p>${vo.name_kr}</p>
+		<div class="form-group">
+			<label for="cup_size">사이즈</label>
+			<select class="form-control" id="cup_size" name="cup_size">
+				<option value="s" selected="selected">S</option>
+				<option value="m">M</option>
+				<option value="l">L</option>
+			</select>
+		</div>
+		<div class="form-group">
+			<label for="cup">컵종류</label>
+			<select class="form-control" id="cup" name="cup">
+				<option value="stay" selected="selected">매장컵</option>
+				<option value="tum">개인컵</option>
+				<option value="togo">일회용</option>
+			</select>
+		</div>
+		<div class="form-group">
+			<label for="cup_size">시럽</label>
+			<select class="form-control" id="cup_size" name="cup_size">
+				<option value="notAdd" selected="selected">추가안함</option>
+				<option value="add">추가</option>
+			</select>
+		</div>
+		<button type="submit" formaction="write.do">주문하기</button>
+		<button type="submit" formaction="">장바구니</button>
+		<button type="submit" formaction="">나만의메뉴</button>
+	</form>
+</div>
+</body>
+</html>

@@ -1,0 +1,127 @@
+package com.today.order.controller;
+
+import javax.servlet.http.HttpServletRequest;
+import com.today.goods.vo.GoodsVO;
+import com.today.main.Execute;
+import com.today.main.ServiceInterface;
+import com.today.order.vo.OrderVO;
+import com.webjjang.util.PageObject;
+
+public class OrderController {
+	 
+	private ServiceInterface orderListService;
+	private ServiceInterface orderViewService;
+	private ServiceInterface orderWriteService;
+	private ServiceInterface orderUpdateService;
+	private ServiceInterface orderDeleteService;
+	private ServiceInterface goodsViewService;
+	private ServiceInterface orderOptionAddService;
+	private ServiceInterface orderOptionViewService;
+	
+	public void setOrderListService(ServiceInterface orderListService) {
+		this.orderListService = orderListService;
+	}
+	public void setOrderViewService(ServiceInterface orderViewService) {
+		this.orderViewService = orderViewService;
+	}
+	public void setOrderWriteService(ServiceInterface orderWriteService) {
+		this.orderWriteService = orderWriteService;
+	}
+	public void setOrderUpdateService(ServiceInterface orderUpdateService) {
+		this.orderUpdateService = orderUpdateService;
+	}
+	public void setOrderDeleteService(ServiceInterface orderDeleteService) {
+		this.orderDeleteService = orderDeleteService;
+	}
+	public void setGoodsViewService(ServiceInterface goodsViewService) {
+		this.goodsViewService = goodsViewService;
+	}
+	public void setOrderOptionAddService(ServiceInterface orderOptionAddService) {
+		this.orderOptionAddService = orderOptionAddService;
+	}
+	
+	public void setOrderOptionViewService(ServiceInterface orderOptionViewService) {
+		this.orderOptionViewService = orderOptionViewService;
+	}
+	
+	public String execute(HttpServletRequest request) throws Exception {
+		System.out.println("orderController.execute().request : " + request);
+		String uri = request.getRequestURI();
+		String method = request.getMethod();
+		System.out.println("orderController.execute().method : " + method);
+		String jsp = null;
+		
+		switch (uri) {
+		case "/order/list.do":
+			PageObject pageObject = PageObject.getInstance(request);
+			request.setAttribute("list", Execute.run(orderListService, pageObject));
+			request.setAttribute("pageObject", pageObject);
+			jsp ="order/list";
+			break;
+		case "/order/view.do":
+			long no = Long.parseLong(request.getParameter("no"));
+			OrderVO viewVO = (OrderVO) Execute.run(orderViewService, no);
+			request.setAttribute("vo", viewVO);
+			request.setAttribute("view", viewVO.getList());
+			jsp = "order/view";
+			break;
+		// 상품정보에서 바로 주문하기
+		case "/order/write.do":
+			if(request.getMethod().equals("GET")) {
+				no = Long.parseLong(request.getParameter("no"));
+				GoodsVO goodsViewVO = (GoodsVO) Execute.run(goodsViewService, no);
+				request.setAttribute("vo", goodsViewVO);
+				jsp = "order/write";
+			} else {
+				// 상품번호 가져와서 opVO에 넣기
+				OrderVO opVO = new OrderVO();
+				opVO.setGoodsNo(Long.parseLong(request.getParameter("goodsNo")));
+				opVO.setGoodsName(request.getParameter("name_kr"));
+				String heating = request.getParameter("heating");
+				if (heating != null) {
+					opVO.setHeating(heating);
+				} else {
+					opVO.setCupSize(request.getParameter("cup_size"));
+					opVO.setCup(request.getParameter("cup"));
+					opVO.setSyrup(request.getParameter("syrup"));
+				}
+				// 입력받은 사이즈, 컵종류, 시럽 option테이블에 insert
+				Execute.run(orderOptionAddService, opVO);
+				OrderVO opNo = new OrderVO();
+				// 옵션번호 가져오기
+				opNo = (OrderVO) Execute.run(orderOptionViewService, opVO);
+				// 옵션번호, 수량, 총가격 담아서 pay.do로 넘기기
+				opVO.setOptionNo(opNo.getOptionNo());
+				opVO.setQuantity(Long.parseLong(request.getParameter("quantity")));
+				opVO.setTotalPrice(Long.parseLong(request.getParameter("totalPrice")));
+				request.setAttribute("vo", opVO);
+				jsp = "order/pay"; // order/pay.do로 이동
+			}
+			break;
+		// 장바구니에서 가져와서 주문하기
+		case "/order/order.do":
+		    OrderVO vo = new OrderVO();
+		    vo.setCartNo(Long.parseLong(request.getParameter("cartNo")));
+		    request.setAttribute("vo", vo);
+			jsp = "order/pay";
+			break;
+		// 주문한 상품들 결제하기
+		case "/order/pay.do":
+			Execute.run(orderWriteService, null);
+			jsp = "redirect:"; // 주문완료창
+			break;
+		case "/order/update.do":
+			Execute.run(orderUpdateService, null);
+			break;
+		case "/order/delete.do":
+			Execute.run(orderDeleteService, null);
+			break;
+		default:
+			jsp = "redirect:/error/404.do";
+			request.getSession().setAttribute("uri", uri);
+		}
+		return jsp;
+	} // end of execute
+	
+
+}

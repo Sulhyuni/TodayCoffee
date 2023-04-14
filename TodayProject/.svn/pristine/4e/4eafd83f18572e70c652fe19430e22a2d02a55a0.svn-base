@@ -1,0 +1,45 @@
+package com.today.order.controller;
+
+import javax.servlet.http.HttpServletRequest;
+
+import com.today.main.Execute;
+import com.today.main.ServiceInterface;
+import com.webjjang.util.PageObject;
+
+public class OrderController {
+	
+	private ServiceInterface orderListService;
+
+	public void setOrderListService(ServiceInterface orderListService) {
+		this.orderListService = orderListService;
+	}
+	
+	public String execute(HttpServletRequest request) throws Exception {
+		System.out.println("orderController.execute().request : " + request);
+		String uri = request.getRequestURI();
+		String method = request.getMethod();
+		System.out.println("orderController.execute().method : " + method);
+		String jsp = null;
+		
+		switch (uri) {
+		case "/order/list.do":
+			PageObject pageObject = PageObject.getInstance(request);
+			request.setAttribute("list", Execute.run(orderListService, pageObject));
+			request.setAttribute("pageObject", pageObject);
+			jsp = "order/list";
+			break;
+		case "/order/view.do":
+			break;
+		case "/order/write.do":
+			break;
+		case "/order/update.do":
+			break;
+		case "/order/delte.do":
+			break;
+		default:
+			jsp = "redirect:/error/404.do";
+			request.getSession().setAttribute("uri", uri);
+		}
+		return jsp;
+	}
+}

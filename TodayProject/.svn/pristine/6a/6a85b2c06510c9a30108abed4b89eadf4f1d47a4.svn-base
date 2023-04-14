@@ -1,0 +1,10 @@
+package com.today.order.dao;
+
+import java.util.List;
+import com.today.order.vo.OrderVO;
+import com.webjjang.util.PageObject;
+
+public interface OrderDAO {
+	public long getTotalRow(PageObject pageObject) throws Exception;
+	public List<OrderVO> list(PageObject pageObject) throws Exception;
+}

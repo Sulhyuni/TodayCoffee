@@ -1,0 +1,15 @@
+package com.today.cart.dao;
+
+import java.util.List;
+
+import com.today.cart.vo.CartVO;
+
+public interface CartDAO {
+	// 리스트
+	public List<CartVO> list()throws Exception;
+	
+	// 담기
+	public int cartAdd(CartVO vo)throws Exception;
+	
+	
+}

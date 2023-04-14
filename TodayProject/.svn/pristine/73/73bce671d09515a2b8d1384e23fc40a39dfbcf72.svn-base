@@ -1,0 +1,132 @@
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"%>
+<%@taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Add Option</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.1/jquery.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+<script type="text/javascript">
+$(function(){
+	let price = ${vo.price};
+	let cup_size = "S";
+	let syrup = "시럽없음";
+
+	$("input[type='radio'][name='cup_size']").on("change", function(){
+		cup_size = $(this).val();
+		switch (cup_size) {
+			case "S":
+				price = ${vo.price};
+				break;
+			case "M":
+				price = ${vo.price} + 500;
+				break;
+			case "L":
+				price = ${vo.price} + 1000;
+				break;
+		}
+		calculateTotalPrice();
+	});
+
+	$("input[type='radio'][name='syrup']").on("change", function(){
+		syrup = $(this).val();
+		if (syrup === "시럽추가") {
+			price += 600;
+		} else {
+			price -= 600;
+		}
+		calculateTotalPrice();
+	});
+
+	let quantity = 1;
+	let quantityElement = $("#quantity");
+	$("#increaseBtn").click(function(){
+		quantity++;
+		quantityElement.val(quantity);
+		calculateTotalPrice();
+	});
+	
+	$("#decreaseBtn").click(function(){
+		if (quantity > 1) {
+			quantity--;
+			quantityElement.val(quantity);
+			calculateTotalPrice();
+		}
+	});
+
+	function calculateTotalPrice() {
+		let orderPrice = price * quantity;
+		$("#orderPrice").val(orderPrice);
+	}
+});
+
+</script>
+</head>
+<body>
+<div class="container">
+	<!-- vo.으로 가져올 수 있는 것 : goodsNo, name_kr, goodDiv -->
+	<h2 style="text-align: center;">${vo.name_kr}</h2>
+	<h1>옵션 선택</h1>
+	<form method="post" id="addOptionForm">
+	<input type="hidden" id="goodsNo" name="goodsNo" value="${vo.goodsNo }">
+	<input type="hidden" id="name_kr" name="name_kr" value="${vo.name_kr }">
+	<input type="hidden" id="goodsDiv" name="goodsDiv" value="${vo.goodsDiv }">
+		<c:if test="${vo.goodsDiv ne 'food'}">
+			<div class="form-group">
+				<label for="cup_size">사이즈</label><br>
+				<input type="radio" id="cup_size_S" name="cup_size" value="S" checked>
+				<label for="cup_size_S">S</label>
+				<input type="radio" id="cup_size_M" name="cup_size" value="M">
+				<label for="cup_size_M">M</label>
+				<input type="radio" id="cup_size_L" name="cup_size" value="L">
+				<label for="cup_size_L">L</label>
+			</div>
+			<div class="form-group">
+				<label for="cup">컵종류</label><br>
+				<input type="radio" id="cup_store" name="cup" value="매장컵" checked>
+				<label for="cup_store">매장컵</label>
+				<input type="radio" id="cup_personal" name="cup" value="개인컵">
+				<label for="cup_personal">개인컵</label>
+				<input type="radio" id="cup_disposable" name="cup" value="일회용">
+				<label for="cup_disposable">일회용</label>
+			</div>
+			<div class="form-group">
+				<label for="syrup">시럽</label><br>
+				<input type="radio" id="syrup_none" name="syrup" value="시럽없음" checked>
+				<label for="syrup_none">시럽없음</label>
+				<input type="radio" id="syrup_add" name="syrup" value="시럽추가">
+				<label for="syrup_add">시럽추가</label>
+			</div>
+		</c:if>
+		<c:if test="${vo.goodsDiv eq 'food'}">
+			<div class="form-group">
+				<label for="heating">워밍 옵션</label><br>
+				<input type="radio" id="heating_none" name="heating" value="데우지않음" checked>
+				<label for="heating_none">데우지 않음</label>
+				<input type="radio" id="heating_warm" name="heating" value="따듯하게데움">
+				<label for="heating_warm">따듯하게 데움</label>
+			</div>
+		</c:if>
+		
+		<div class="form-group">
+			<label for="quantity">수량</label><br/>
+			<button type="button" id="increaseBtn"class="btn btn-default">+</button>
+			<input id="quantity" name="quantity" readonly="readonly" value="1"></input>
+			<button type="button" id="decreaseBtn"class="btn btn-default">-</button>
+		</div>
+		
+		<div>
+			<label for="orderPrice">가격</label>
+			<input id="orderPrice" name="orderPrice" value="${vo.price }"></input>
+		</div>
+		
+		<button type="submit" formaction="opAdd.do">주문하기</button>
+		<button type="submit" formaction="/cart/add.do?no=${vo.goodsNo }">장바구니</button>
+		<button type="submit" formaction="/mymenu/add.do">나만의메뉴</button>
+	</form>
+</div>
+</body>
+</html>

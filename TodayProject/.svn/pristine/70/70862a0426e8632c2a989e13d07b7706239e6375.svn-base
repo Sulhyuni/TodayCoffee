@@ -1,0 +1,32 @@
+package com.today.cart.controller;
+
+import javax.servlet.http.HttpServletRequest;
+
+import com.today.main.ServiceInterface;
+
+public class CartController {
+
+	// private 서비스 생성
+	private ServiceInterface cartListService;
+	
+	// setter
+	public void setCartListService(ServiceInterface cartListService) {
+		this.cartListService = cartListService;
+		
+	}
+	
+	// 실행 메서드 -> 리턴 String 데이터를 jsp 또는 url 정보가 된다.
+			public String execute(HttpServletRequest request) throws Exception{
+				System.out.println("CartController.execute().request : " + request);
+				// 어떤 요청
+				String uri = request.getRequestURI();
+				String method = request.getMethod();
+				System.out.println("CartController.execute().method : " + method);
+				String jsp = null;
+				
+				// 처리
+				
+				return jsp;
+			}
+
+}

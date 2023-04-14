@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns="http://xmlns.jcp.org/xml/ns/javaee"
+	xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/javaee http://xmlns.jcp.org/xml/ns/javaee/web-app_4_0.xsd"
+	id="WebApp_ID" version="4.0">
+	<display-name>servlet</display-name>
+	<!-- 기본문서 설정 : url을 입력 할 때 위치 정보만 입력하고 index.do는 생략 가능하다. -->
+	<welcome-file-list>
+		<welcome-file>index.do</welcome-file>
+	</welcome-file-list>
+
+	<!-- servlet 등록 -->
+	<servlet>
+		<servlet-name>dispatcher</servlet-name>
+		<servlet-class>com.dahee.main.DispatcherServelet</servlet-class>
+		<!-- 서버를 실행시키면서 servlet을 loading해주는 순서번호 -> servlet안의 init() 메서드가 호출되어서 
+			실행된다. -->
+		<load-on-startup>1</load-on-startup>
+	</servlet>
+	<!-- servlet과 url을 연결해서 등록 -->
+	<servlet-mapping>
+		<servlet-name>dispatcher</servlet-name>
+		<!-- 위치 기반 : /board/*, 확장자 기반 : *.do -> 두개를 혼합해서 사용할 수 없다. 오류 발생함. -->
+		<url-pattern>*.do</url-pattern>
+	</servlet-mapping>
+	<filter>
+		<description>사이트에 레이아웃을 잡는 필터 처리</description>
+		<filter-name>sitemesh</filter-name>
+		<filter-class>com.opensymphony.sitemesh.webapp.SiteMeshFilter</filter-class>
+	</filter>
+	<filter-mapping>
+		<filter-name>sitemesh</filter-name>
+		<url-pattern>*.do</url-pattern>
+	</filter-mapping>
+	<!-- try-catch로 잡아내지 못한 오류에 대한 예외처리 -->
+	<!-- 에러가 나면 sitemesh는 적용이 되지 않는다. -->
+	<error-page>
+		<error-code>404</error-code>
+		<location>/WEB-INF/views/error/total404.jsp</location>
+	</error-page>
+	<error-page>
+		<error-code>505</error-code>
+		<location>/WEB-INF/views/error/total500.jsp</location>
+	</error-page>
+</web-app>

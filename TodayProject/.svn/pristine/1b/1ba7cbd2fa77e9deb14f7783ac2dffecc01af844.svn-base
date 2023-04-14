@@ -1,0 +1,461 @@
+package com.today.order.dao;
+
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
+import com.today.io.db.DB;
+import com.today.order.vo.OrderVO;
+import com.webjjang.util.PageObject;
+
+public class OrderDAOImpl implements OrderDAO{
+	
+	private Connection con = null;
+	private PreparedStatement pstmt = null;
+	private ResultSet rs = null;
+	
+	private String searchSQL(PageObject pageObject) {
+		String sql = "";
+		String word = pageObject.getWord();
+		String key = pageObject.getKey();
+		if(word != null && !word.trim().equals("")) {
+			sql += " AND (1=0 ";
+			if(key.indexOf("n") >= 0 ) sql += " OR orderNo LIKE ? ";
+			if(key.indexOf("s") >= 0 ) sql += " OR orderStatus LIKE ? ";
+			sql += " ) ";
+		} else {
+			sql += " ";
+		}
+		return sql;
+	}
+	
+	private String searchSQL2(PageObject pageObject) {
+		String sql = "";
+		String word = pageObject.getWord();
+		String key = pageObject.getKey();
+		if(word != null && !word.trim().equals("")) {
+			sql += " WHERE (1=0 ";
+			if(key.indexOf("n") >= 0 ) sql += " OR orderNo LIKE ? ";
+			if(key.indexOf("s") >= 0 ) sql += " OR orderStatus LIKE ? ";
+			sql += " ) ";
+		} else {
+			sql += " ";
+		}
+		return sql;
+	}
+	
+	private int searchDataSet(PageObject pageObject, int idx) throws SQLException{
+		String word = pageObject.getWord();
+		String key = pageObject.getKey();
+		if(word != null && !word.equals("")) {
+			if(key.indexOf("n") >= 0) pstmt.setString(++idx, "%"+word+"%");
+			if(key.indexOf("s") >= 0) pstmt.setString(++idx, "%"+word+"%");
+		}
+		return idx;
+	}
+	
+	public long getTotalRow(PageObject pageObject) throws Exception {
+		System.out.println("OrderDAOImpl.getTotalRow().object : " + pageObject);
+		long totalRow = 0;
+		try {
+			con = DB.getConnection();
+			String sql = " SELECT count(*) FROM orderTable ";
+			sql += searchSQL2(pageObject);
+			System.out.println("OrderDAOImpl.getTotalRow().sql : " + sql);
+			pstmt = con.prepareStatement(sql);
+			int idx = 0;
+			idx = searchDataSet(pageObject, idx);
+			rs = pstmt.executeQuery();
+			if(rs != null && rs.next()) {
+				totalRow = rs.getLong(1);
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw new Exception("주문내역 리스트를 위한 전체 데이터 개수 DB처리 중 오류 발생");
+		} finally {
+			DB.close(con, pstmt, rs);
+		}
+		return totalRow;
+	}
+	
+	public List<OrderVO> list(PageObject pageObject) throws Exception {
+		System.out.println("OrderDAOImpl.list()");
+		List<OrderVO> list = null;
+		try {
+			con = DB.getConnection();
+			// 주문번호, 아이디, 주문일자, 결제금액, 주문상태
+			String sql = " SELECT ot.orderNo, m.id, "
+					+ " to_char(ot.orderDate, 'yyyy-mm-dd HH24:MI:SS') orderDate, "
+					+ " ot.payPrice, ot.orderStatus "
+					+ " FROM orderTable ot, member m " ;
+			sql += " WHERE ot.id = m.id " ;
+			sql += searchSQL(pageObject);
+			sql += " ORDER BY orderNo DESC ";
+			sql = " SELECT ROWNUM rnum, orderNo, id, orderDate, payPrice, orderStatus "
+					+ " FROM ( " + sql + " ) ";
+			sql = " SELECT rnum, orderNo, id, orderDate, payPrice, orderStatus "
+					+ " FROM ( " + sql + " ) "
+					+ " WHERE rnum BETWEEN ? and ? " ;
+			System.out.println("OrderDAOImpl.list().sql : " + sql);
+			int idx = 0;
+			pstmt = con.prepareStatement(sql);
+			idx = searchDataSet(pageObject, idx);
+			pstmt.setLong(++idx, pageObject.getStartRow());
+			pstmt.setLong(++idx, pageObject.getEndRow());
+			rs = pstmt.executeQuery();
+			if(rs != null) {
+				while(rs.next()) {
+					if(list == null) list = new ArrayList<>();
+					OrderVO vo = new OrderVO();
+					vo.setOrderNo(rs.getLong("orderNo"));
+					vo.setId(rs.getString("id"));
+					vo.setOrderDate(rs.getString("orderDate"));
+					vo.setPayPrice(rs.getLong("payPrice"));
+					vo.setOrderStatus(rs.getString("orderStatus"));
+					list.add(vo);
+				}
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw new Exception("주문내역 리스트 DB처리 중 오류 발생");
+		} finally {
+			DB.close(con, pstmt, rs);
+		}
+		return list;
+	}
+	
+	public List<OrderVO> perList(PageObject pageObject, String id) throws Exception {
+		System.out.println("OrderDAOImpl.perList()");
+		List<OrderVO> list = null;
+		try {
+			con = DB.getConnection();
+			// 주문번호, 아이디, 주문일자, 결제금액, 주문상태
+			String sql = " SELECT ot.orderNo, m.id, "
+					+ " to_char(ot.orderDate, 'yyyy-mm-dd HH24:MI:SS') orderDate, "
+					+ " ot.payPrice, ot.orderStatus "
+					+ " FROM orderTable ot, member m " ;
+			sql += " WHERE (ot.id = m.id) AND m.id = ? " ;
+			sql += searchSQL(pageObject);
+			sql += " ORDER BY orderNo DESC ";
+			sql = " SELECT ROWNUM rnum, orderNo, id, orderDate, payPrice, orderStatus "
+					+ " FROM ( " + sql + " ) ";
+			sql = " SELECT rnum, orderNo, id, orderDate, payPrice, orderStatus "
+					+ " FROM ( " + sql + " ) "
+					+ " WHERE rnum BETWEEN ? and ? " ;
+			System.out.println("OrderDAOImpl.list().sql : " + sql);
+			int idx = 0;
+			pstmt = con.prepareStatement(sql);
+			idx = searchDataSet(pageObject, idx);
+			pstmt.setString(++idx, id);
+			pstmt.setLong(++idx, pageObject.getStartRow());
+			pstmt.setLong(++idx, pageObject.getEndRow());
+			rs = pstmt.executeQuery();
+			if(rs != null) {
+				while(rs.next()) {
+					if(list == null) list = new ArrayList<>();
+					OrderVO vo = new OrderVO();
+					vo.setOrderNo(rs.getLong("orderNo"));
+					vo.setId(rs.getString("id"));
+					vo.setOrderDate(rs.getString("orderDate"));
+					vo.setPayPrice(rs.getLong("payPrice"));
+					vo.setOrderStatus(rs.getString("orderStatus"));
+					list.add(vo);
+				}
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw new Exception("개인주문내역 리스트 DB처리 중 오류 발생");
+		} finally {
+			DB.close(con, pstmt, rs);
+		}
+		return list;
+	}
+
+	@Override
+	public OrderVO view(long no) throws Exception {
+		System.out.println("OrderDAOImpl.view().no : " + no);
+		OrderVO vo = null;
+		try {
+			con = DB.getConnection();
+							// 주문번호, 아이디, 파일이름, 상품이름, 상품가격(단가), 상품분류,
+			String sql = " SELECT od.orderNo, m.id, g.fileName, g.name_kr, g.price, g.goodsDiv, "
+					// 컵사이즈, 컵종류, 시럽, 데움, 수량(옵션포함한), 주문금액(옵션포함), 총주문금액(주문금액모두더한거), 결제금액
+					+ " o.cup_size, o.cup, o.syrup, o.heating, od.quantity, od.orderPrice, ot.totalprice, ot.payPrice, "
+					// 주문일시, 주문상태
+					+ " to_char(ot.orderDate, 'yyyy-mm-dd hh24:mi:ss') orderDate, ot.orderStatus "
+					+ " FROM orderDetail od, orderTable ot, goods g, goods_option o, member m "
+					+ " WHERE od.orderNo = ? "
+					+ " AND od.goodsNo = g.goodsNo "
+					+ " AND od.orderNo = ot.orderNo "
+					+ " AND od.optionNo = o.optionNo "
+					+ " AND ot.id = m.id ";
+			System.out.println("OrderDAOImpl.view().sql : " + sql);
+			pstmt = con.prepareStatement(sql);
+			pstmt.setLong(1, no);
+			rs = pstmt.executeQuery();
+			
+			if(rs != null) {
+				vo = new OrderVO();
+				while (rs.next()) {
+					vo.setOrderNo(rs.getLong("orderNo"));
+					vo.setId(rs.getString("id"));
+					vo.setTotalPrice(rs.getLong("totalPrice"));
+					vo.setPayPrice(rs.getLong("payPrice"));
+					vo.setOrderDate(rs.getString("orderDate"));
+					vo.setOrderStatus(rs.getString("orderStatus"));
+					OrderVO o = new OrderVO();
+					o.setFileName(rs.getString("fileName"));
+					o.setGoodsName(rs.getString("name_kr"));
+					o.setGoodsDiv(rs.getString("goodsDiv"));
+					o.setGoodsPrice(rs.getString("price"));
+					o.setCupSize(rs.getString("cup_size"));
+					o.setCup(rs.getString("cup"));
+					o.setSyrup(rs.getString("syrup"));
+					o.setQuantity(rs.getLong("quantity"));
+					o.setHeating(rs.getString("heating"));
+					o.setOrderPrice(rs.getLong("orderPrice"));
+					vo.getList().add(o);			
+				}
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw new Exception("주문내역 상세보기 DB처리 중 오류 발생");
+		} finally {
+			DB.close(con, pstmt, rs);
+		}
+		return vo;
+	}
+
+	@Override
+	// 여기는 한번만 넣으면 됨.
+	public int write(OrderVO vo) throws Exception {
+		int result = 0;
+		try {
+			con = DB.getConnection();
+			String sql = " INSERT INTO orderTable (orderNo, id, totalPrice, payPrice, payMethod)"
+					+ " values (orderTable_seq.nextval,?,?,?,?) ";
+			System.out.println("sql" + sql);
+			pstmt = con.prepareStatement(sql);
+			pstmt.setString(1, vo.getId());
+			pstmt.setLong(2, vo.getTotalPrice());
+			pstmt.setLong(3, vo.getPayPrice());
+			pstmt.setString(4, vo.getPayMethod());
+			result = pstmt.executeUpdate();
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw new Exception("주문하기 DB처리 중 오류 발생");
+		} finally {
+			DB.close(con, pstmt);
+		}
+		return result;
+	}
+	
+	// 여기는 여러번 INSERT해야 됨 (상품이여러개) -> List<OrderVO> 넘어와야 됨.
+	public int writeDetail(OrderVO vo) throws Exception {
+		int result = 0;
+		try {
+			con = DB.getConnection();
+			String sql = " INSERT INTO orderDetail (orderDetailNo, orderNo, optionNo, goodsNo, quantity, orderPrice) "
+					+ " VALUES (orderDetail_seq.nextval, ?, ?, ?, ?, ?) ";
+			System.out.println("sql" + sql);
+			pstmt = con.prepareStatement(sql);
+			pstmt.setLong(1, vo.getOrderNo());
+			pstmt.setLong(2, vo.getOptionNo());
+			pstmt.setLong(3, vo.getGoodsNo());
+			pstmt.setLong(4, vo.getQuantity());
+			pstmt.setLong(5, vo.getOrderPrice());
+			result = pstmt.executeUpdate();
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw new Exception("주문하기 상세 DB처리 중 오류 발생");
+		} finally {
+			DB.close(con, pstmt);
+		}
+		return result;
+	}
+
+	@Override
+	public int update(OrderVO vo) throws Exception {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	@Override
+	public int delete(OrderVO vo) throws Exception {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+	
+	// option정보 등록하는 메서드
+	public int optionAdd(OrderVO vo) throws Exception {
+		System.out.println("OrderDAOImpl.optionAdd().vo : " + vo);
+		int result = 0;
+		try {
+			con = DB.getConnection();
+			String sql = " INSERT INTO goods_option (optionNo, goodsNo, cup_size, cup, syrup, heating) "
+					+ " VALUES (goods_option_seq.nextval, ?, ?, ?, ?, ?) ";
+			System.out.println("sql : " + sql);
+			pstmt = con.prepareStatement(sql);
+			pstmt.setLong(1, vo.getGoodsNo());
+			pstmt.setString(2, vo.getCupSize());
+			pstmt.setString(3, vo.getCup());
+			pstmt.setString(4, vo.getSyrup());
+			pstmt.setString(5, vo.getHeating());
+			result = pstmt.executeUpdate();
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw new Exception("옵션 등록 DB처리 중 오류 발생");
+		} finally {
+			DB.close(con, pstmt);
+		}
+		return result;
+	}
+
+	// optionNo 가져오는 메서드
+	public OrderVO optionView(OrderVO vo) throws Exception {
+		System.out.println("OrderDAOImpl.optionView().vo : " + vo);
+		OrderVO opViewVO = null;
+		try {
+			con = DB.getConnection();
+			// 가장 최근에 추가된 optionNo 가져오기
+			String sql = " SELECT max(optionNo) optionNo FROM goods_Option WHERE goodsNo = ?";
+			if (vo.getSyrup() != null && vo.getHeating() == null) {
+				sql += " AND cup_size = ? AND cup = ? ANd syrup = ? ";
+				pstmt = con.prepareStatement(sql);
+				pstmt.setLong(1, vo.getGoodsNo());
+				pstmt.setString(2, vo.getCupSize());
+				pstmt.setString(3, vo.getCup());
+				pstmt.setString(4, vo.getSyrup());
+			} else if (vo.getHeating() != null && vo.getSyrup() == null) {
+				sql += " AND heating = ? ";
+				pstmt = con.prepareStatement(sql);
+				pstmt.setLong(1, vo.getGoodsNo());
+				pstmt.setString(2, vo.getHeating());
+			} else {
+				pstmt = con.prepareStatement(sql);
+				pstmt.setLong(1, vo.getGoodsNo());	
+			}
+			rs = pstmt.executeQuery();
+			if(rs != null && rs.next()) {
+				opViewVO = new OrderVO();
+				opViewVO.setOptionNo(rs.getLong("optionNo"));
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw new Exception("옵션 번호 불러오는 DB처리 중 오류 발생");
+		} finally {
+			DB.close(con, pstmt, rs);
+		}
+		return opViewVO;
+	}
+	
+	public OrderVO opDetailView(OrderVO vo) throws Exception {
+		System.out.println("OrderDAOImpl.opDetailView().vo : " + vo);
+		OrderVO opDetailView = null;
+		try {
+			con = DB.getConnection();
+			String sql = " SELECT cup, syrup, cup_size, heating "
+					+ " FROM goods_Option"
+					+ " WHERE goodsNo = ? AND optionNo = ? ";
+			pstmt = con.prepareStatement(sql);
+			pstmt.setLong(1, vo.getGoodsNo());
+			pstmt.setLong(2, vo.getOptionNo());
+			rs = pstmt.executeQuery();
+			if(rs != null && rs.next()) {
+				opDetailView = new OrderVO();
+				if(rs.getString("heating") == null) {					
+					opDetailView.setCup(rs.getString("cup"));
+					opDetailView.setSyrup(rs.getString("syrup"));
+					opDetailView.setCupSize(rs.getString("cup_size"));
+				} else {		
+					opDetailView.setHeating(rs.getString("heating"));
+				}
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw new Exception("옵션 내역 불러오는 DB처리 중 오류 발생");
+		} finally {
+			DB.close(con, pstmt, rs);
+		}
+		return opDetailView;
+	}
+	
+	public long findOrderNo(String id) throws Exception {
+		long result = 0;
+		try {
+			con = DB.getConnection();
+			// 넘어온 데이터의 아이디의 가장 최근에 추가된 orderNo 가져오기
+			String sql = " SELECT max(orderNo) orderNo FROM orderTable WHERE id = ? ";
+			pstmt = con.prepareStatement(sql);
+			pstmt.setString(1, id);
+			rs = pstmt.executeQuery();
+			if (rs != null) {
+				rs.next();
+			}
+			result = rs.getLong("orderNo");
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw new Exception("orderNo 찾기 DB처리중 오류발생");
+		} finally {
+			DB.close(con, pstmt, rs);
+		}
+		return result;
+	}
+	
+	// 여러개의 cartNo로 여러개의 cart 리스트 불러오기
+	public List<OrderVO> cartList(List<Long> noList) throws Exception {
+		System.out.println("OrderDAOImpl.cartList()");
+		List<OrderVO> list = null;
+		try {
+			con = DB.getConnection();
+			// 주문번호, 아이디, 주문일자, 결제금액, 주문상태
+			String sql = " SELECT c.cartNo, m.id, g.goodsNo, g.name_kr, g.goodsDiv, g.fileName, "
+					+ " o.optionNo, o.cup_size, o.cup, o.syrup, o.heating, c.quantity, c.totalPrice "
+					+ " FROM cart c, goods g, goods_option o, member m "
+					+ " WHERE c.id = m.id AND c.goodsNo = g.goodsNo AND c.optionNo = o.optionNo"
+					+ " AND c.cartNo IN ( ";
+			for (int i = 0; i < noList.size(); i++) {
+				if(i > 0) {
+					sql += ",";
+				}
+				sql +="?";
+			}
+			sql += ")";
+			pstmt = con.prepareStatement(sql);
+			for (int i = 0; i < noList.size(); i++) {
+				pstmt.setLong(i+1, noList.get(i));
+			}
+			rs = pstmt.executeQuery();
+			if(rs != null) {
+				while(rs.next()) {
+					if(list == null) list = new ArrayList<>();
+					OrderVO vo = new OrderVO();
+					vo.setCartNo(rs.getLong("cartNo"));
+					vo.setOptionNo(rs.getLong("optionNo"));
+					vo.setId(rs.getString("id"));
+					vo.setGoodsNo(rs.getLong("goodsNo"));
+					vo.setGoodsName(rs.getString("name_kr"));
+					vo.setGoodsDiv(rs.getString("goodsDiv"));
+					vo.setFileName(rs.getString("fileName"));
+					vo.setCupSize(rs.getString("cup_size"));
+					vo.setCup(rs.getString("cup"));
+					vo.setSyrup(rs.getString("syrup"));
+					vo.setHeating(rs.getString("heating"));
+					vo.setQuantity(rs.getLong("quantity"));
+					vo.setOrderPrice(rs.getLong("totalPrice"));
+					list.add(vo);
+				}
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw new Exception("장바구니 리스트 DB처리 중 오류 발생");
+		} finally {
+			DB.close(con, pstmt, rs);
+		}
+		return list;
+	}
+}

@@ -1,0 +1,57 @@
+package com.today.mymenu.dao;
+
+import java.util.List;
+
+import com.today.mymenu.vo.MyMenuVO;
+
+public class MyMenuDAOImpl implements MyMenuDAO{
+
+	@Override // 리스트
+	public List<MyMenuVO> list(String id) throws Exception {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override // 보기
+	public MyMenuVO view(long no) throws Exception {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override // 담기
+	public int mymenuAdd(MyMenuVO vo) throws Exception {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	@Override // 수정
+	public int update(MyMenuVO vo) throws Exception {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	@Override // 삭제
+	public int delete(MyMenuVO vo) throws Exception {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	@Override // 전체삭제
+	public int Alldelete(MyMenuVO vo) throws Exception {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	@Override // 옵션담기
+	public int optionAdd(MyMenuVO vo) throws Exception {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	@Override // 옵션번호불러오기
+	public MyMenuVO optionView(MyMenuVO vo) throws Exception {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+}

@@ -1,0 +1,24 @@
+package com.today.order.service;
+
+import com.today.main.ServiceInterface;
+import com.today.order.dao.OrderDAO;
+import com.webjjang.util.PageObject;
+
+public class OrderListServiceImpl implements ServiceInterface {
+
+	private OrderDAO dao;
+	@Override
+	public void setDao(Object obj) {
+		this.dao = (OrderDAO)obj;
+
+	}
+
+	@Override
+	public Object service(Object obj) throws Exception {
+		System.out.println("OrderListServiceImpl.service()");
+		PageObject pageObject = (PageObject) obj;
+		pageObject.setTotalRow(dao.getTotalRow(pageObject));
+		return dao.list(pageObject);
+	}
+
+}

@@ -1,0 +1,154 @@
+package com.today.notice.controller;
+
+import java.net.URLEncoder;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
+
+import com.today.main.Execute;
+import com.today.main.ServiceInterface;
+import com.today.notice.vo.NoticeVO;
+import com.webjjang.util.PageObject;
+
+
+
+public class NoticeController {
+
+//null point 뜨면 Init 클래스를 다시 확인하자
+	
+	//private 변수로 NoticeListService, view , update...선언
+	private ServiceInterface noticeListService;
+	private ServiceInterface noticeReservedListService;
+	private ServiceInterface noticeLastListService;
+	private ServiceInterface noticeCurrentListService;
+	private ServiceInterface noticeViewService;
+	private ServiceInterface noticeWriteService;
+	private ServiceInterface noticeUpdateService;
+	private ServiceInterface noticeDeleteService;
+	
+	
+	//setter를 만들어서 생성된 service 를 받는다.
+	public void setNoticeListService(ServiceInterface noticeListService) {
+		this.noticeListService = noticeListService;
+	}
+	public void setNoticeViewService(ServiceInterface noticeViewService) {
+		this.noticeViewService = noticeViewService;
+	}
+	public void setNoticeWriteService(ServiceInterface noticeWriteService) {
+		this.noticeWriteService = noticeWriteService;
+	}
+	public void setNoticeUpdateService(ServiceInterface noticeUpdateService) {
+		this.noticeUpdateService = noticeUpdateService;
+	}
+	public void setNoticeDeleteService(ServiceInterface noticeDeleteService) {
+		this.noticeDeleteService = noticeDeleteService;
+	}
+	public void setNoticeReservedListService(ServiceInterface noticeReservedListService) {
+		this.noticeReservedListService = noticeReservedListService;
+	}
+	public void setNoticeLastListService(ServiceInterface noticeLastListService) {
+		this.noticeLastListService = noticeLastListService;
+	}
+	public void setNoticeCurrentListService(ServiceInterface noticeCurrentListService) {
+		this.noticeCurrentListService = noticeCurrentListService;
+	}
+	
+	//실행메서드- return 되는 String데이터는 jsp 또는 url 정보.
+	public String execute(HttpServletRequest request) throws Exception{
+		System.out.println("NoticeController.execute().request : " + request);
+		//어떤 요청
+		String uri = request.getRequestURI();
+		String method = request.getMethod();
+		System.out.println("NoticeController.method()"+method);
+		String jsp = null;
+		// 세션 받아오기
+		HttpSession session = request.getSession();
+				
+		switch (uri) {
+		case "/notice/list.do":	
+			PageObject pageObject = PageObject.getInstance(request);
+			request.setAttribute("list", Execute.run(noticeListService, pageObject));
+			//jsp - list 데이터 아래의 페이지 네비게이션을 위한 데이터 저장
+			request.setAttribute("pageObject", pageObject);
+			jsp = "notice/list";
+			break;
+
+		case "/notice/view.do":		
+			//no 는 request에서 넘어온다.
+			//데이터 수집 
+			 
+			long no = Long.parseLong( request.getParameter("no"));
+			int inc = Integer.parseInt(request.getParameter("inc"));
+			//데이터 처리 -> request에 담는다. -> jsp에서 꺼내쓴다.
+			NoticeVO viewVO = (NoticeVO)Execute.run(noticeViewService, new Object[] {no,inc});
+			
+			//내용 줄바꿈 처리
+			viewVO.setContent(viewVO.getContent().replace("\r\n","<br/>"));
+			request.setAttribute("vo",viewVO);
+			jsp = "notice/view";
+			break;
+			
+		case "/notice/write.do":	
+			//writeForm으로 // get방식
+			if(request.getMethod().equals("GET")) {
+				jsp = "notice/write";
+			}else {
+				// post방식
+				//페이지 데이터 수집--perPageNumStr 을 url 뒤에 바로 붙여서 사용하자.
+				//String perPageNumStr = request.getParameter("perPageNum");
+				//데이터 수집 
+				NoticeVO writeVO = new NoticeVO();
+				writeVO.setTitle(request.getParameter("title"));
+				writeVO.setContent(request.getParameter("content"));
+				writeVO.setStartDate(request.getParameter("startDate"));
+				writeVO.setEndDate(request.getParameter("endDate"));
+				writeVO.setUpdateDate(request.getParameter("updateDate"));
+				
+				Execute.run(noticeWriteService, writeVO);
+				jsp = "redirect:list.do?perPageNum="+request.getParameter("perPageNum");
+			}
+			break;
+			
+		case "/notice/update.do":	
+			long updateNo = Long.parseLong(request.getParameter("no"));
+			//updateVO 변수 생성 후 뷰서비스에서 번호를 가져온다.
+			if(request.getMethod().equals("GET")) {
+				//데이터처리 -> request에 담는다.
+				request.setAttribute("vo", Execute.run(noticeViewService,  new Object[] {updateNo, 0}));
+				jsp = "notice/update";
+			}else {// post방식
+				NoticeVO updateVO = new NoticeVO();
+				//데이터 수집 - > 후에 조립 해야햄 Init
+				updateVO.setNo(updateNo);
+				updateVO.setTitle(request.getParameter("title"));
+				updateVO.setContent(request.getParameter("content"));
+			
+				//DB처리
+				Execute.run(noticeUpdateService, updateVO);
+				jsp = "redirect:view.do?no=" +updateNo +"&inc=0" 
+				+ "&page=" + request.getParameter("page") 
+				+ "&perPageNum=" + request.getParameter("perPageNum")
+				+ "&key=" + request.getParameter("key")
+				+ "&word=" + URLEncoder.encode(request.getParameter("word"),"utf-8");
+				
+			}
+			break;
+		case "/notice/delete.do":			
+			//데이터 수집 - 글번호, 비밀번호 수집
+			long deleteNo = Long.parseLong(request.getParameter("no"));
+			
+			NoticeVO deleteVO = new NoticeVO();
+			deleteVO.setNo(deleteNo);
+			
+			//DB삭제 처리
+			Execute.run(noticeDeleteService, deleteVO);
+			jsp = "redirect:list.do?perPageNum=" + request.getParameter("perPageNum");
+			break;
+
+		default:
+			throw new Exception("잘못된 페이지를 요청하였습니다.");
+			
+		}		
+		return jsp;
+	}
+}

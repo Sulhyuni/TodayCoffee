@@ -1,0 +1,69 @@
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"%>
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>상품등록</title>
+<!--라이브러리 등록-->
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<!-- <link rel="stylesheet"	href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css"> -->
+<script	src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.1/jquery.min.js"></script>
+<script	src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+
+
+<script type="text/javascript">
+
+//취소(이전으로) 이벤트
+$(function() {
+	$("#cancelBtn").click(function() {
+		history.back();
+	});
+});
+</script>
+
+</head>
+<body>
+<div class="container">
+	<h2>상품 등록</h2>
+	<form action="write.do" method="post" enctype="multipart/form-data" id = "writeForm">
+		
+			<!-- 분류 체크 food/hot/ice -->
+			<label class="radio-inline"> <input type="radio" name="optradio" checked>푸드</label> 
+			<label class="radio-inline"> <input type="radio" name="optradio">HOT</label>
+			<label class="radio-inline"> <input type="radio" name="optradio">ICE</label>
+			
+
+		<!-- 작성해야할 목록 -> name_kr, name_en, goodsView, price, fileName -->
+		<div class = "form-group" style="margin-top: 5px;">
+			<label for="name_kr">상품명_한글</label>
+			<input name = "name_kr" class ="form-control">
+		</div>
+		<div class = "form-group">
+			<label for="name_en">상품명_영문</label>
+			<input name = "name_en" class ="form-control">
+		</div>
+		<div class = "form-group">
+			<label for="price">가격</label>
+			<input name = "price" class ="form-control">
+		</div>
+		<div class = "form-group">
+			<label for="fileName">상품 이미지</label>
+			<input name = "fileName" class ="form-control" type = "file">
+		</div>
+		<div class = "form-group">
+			<label for="goodsView">상품 설명</label>
+			<textarea name = "goodsView" class ="form-control" rows="5"></textarea>
+		</div>
+	
+	<!-- 등록, 새로입력, 취소(이전으로) 버튼 생성 -->
+		<div style ="float: right;">
+			<button type="submit">등록</button>
+			<button type="reset">새로입력</button>
+			<button type="button" id="cancelBtn">취소</button>
+		</div>
+	</form>
+</div>
+
+</body>
+</html>

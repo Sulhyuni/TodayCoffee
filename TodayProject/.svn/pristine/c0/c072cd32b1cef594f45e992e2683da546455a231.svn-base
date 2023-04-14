@@ -1,0 +1,66 @@
+package com.today.mymenu.controller;
+
+import javax.servlet.http.HttpServletRequest;
+
+import com.today.main.ServiceInterface;
+
+public class MyMenuController {
+
+	// private 변수로 MyMenuService
+	private ServiceInterface mymenuListService;
+	private ServiceInterface mymenuViewService;
+	private ServiceInterface mymenuAddService;
+	private ServiceInterface mymenuUpdateService;
+	private ServiceInterface mymenuDeleteService;
+	private ServiceInterface mymenuAllDeleteService;
+	private ServiceInterface mymenuOptionAddService;
+	private ServiceInterface mymenuOptionViewService;
+	
+	// setter를 만들어 service를 받는다.
+	public void setMyMenuListService(ServiceInterface mymenuListService) {
+		this.mymenuListService = mymenuListService;
+		
+	}
+	public void setMyMenuViewService(ServiceInterface mymenuViewService) {
+		this.mymenuViewService = mymenuViewService;
+		
+	}
+	public void setMyMenuAddService(ServiceInterface mymenuAddService) {
+		this.mymenuAddService = mymenuAddService;
+		
+	}
+	public void setMyMenuUpdateService(ServiceInterface mymenuUpdateService) {
+		this.mymenuUpdateService = mymenuUpdateService;
+		
+	}
+	public void setMyMenuDeleteService(ServiceInterface mymenuDeleteService) {
+		this.mymenuDeleteService = mymenuDeleteService;
+		
+	}
+	public void setMyMenuAllDeleteService(ServiceInterface mymenuAllDeleteService) {
+		this.mymenuAllDeleteService = mymenuAllDeleteService;
+		
+	}
+	public void setMyMenuOptionAddService(ServiceInterface mymenuOptionAddService) {
+		this.mymenuOptionAddService =mymenuOptionAddService;
+		
+	}
+	public void setMyMenuOptionViewService(ServiceInterface mymenuOptionViewService) {
+		this.mymenuOptionViewService = mymenuOptionViewService;
+		
+	}
+	// 실행 메서드 -> 리턴 String 데이터를 jsp 또는 url 정보가 된다.
+		public String execute(HttpServletRequest request) throws Exception{
+			System.out.println("MyMenuController.execute().request : " + request);
+			// 어떤 요청
+			String uri = request.getRequestURI();
+			String method = request.getMethod();
+			System.out.println("MyMenuController.execute().method : " + method);
+			String jsp = null;
+			
+			// 처리
+			
+			return jsp;
+		}
+
+}

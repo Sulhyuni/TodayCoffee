@@ -1,0 +1,36 @@
+package com.today.event.dao;
+
+import java.util.List;
+
+import com.today.event.vo.EventVO;
+import com.webjjang.util.PageObject;
+
+public interface EventDAO {
+
+	//모든 list
+	public List<EventVO> list(PageObject pageObject) throws Exception;
+	//에약된 list
+	public List<EventVO> reservedList(PageObject pageObject) throws Exception;
+	//지난 list
+	public List<EventVO> lastList(PageObject pageObject) throws Exception;
+	//현재
+	public List<EventVO> currentList(PageObject pageObject) throws Exception;
+	
+	//페이징처리
+	public long getTotalRow(PageObject pageObject) throws Exception;
+	
+	//view 리턴타입 EventVO
+	public EventVO view(long no) throws Exception;
+
+	//increase
+	public int increase(long no)throws Exception;
+	
+	//글쓰기
+	public int write(EventVO vo) throws Exception;
+
+	//글수정
+	public Integer update(EventVO vo) throws Exception;
+	
+	//글삭제
+	public Integer delete(EventVO vo) throws Exception;
+}

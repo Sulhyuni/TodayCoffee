@@ -1,0 +1,63 @@
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+	pageEncoding="UTF-8"%>
+<%@taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
+<!DOCTYPE html>
+<html>
+<head>
+<script type="text/javascript">
+
+       
+$('#delBtn').click(function(){
+	if($("input:checkbox[name='chk_list']:checked").length===0){
+		alert("삭제할 항목을 선택해 주세요");
+		return;
+	}
+	$("input:checkbox[name='chk_list']:checked").each(function(k,kVal){
+	console.log("kVal ::",kVal.parentElement.parentElement.parentElement);
+	let a = kVal.parentElement.parentElement.parentElement;
+	$(a).remove();
+	});
+});
+</script>
+<style type="text/css">
+</style>
+<meta charset="UTF-8">
+<title>장바구니</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+	<div class="container">
+		<div  class="col-md-12">
+		<a	href="alldelete.do"><button style="float:right; margin-bottom: 10px;">전체삭제</button></a>  
+		<a	href="selectdelete.do" ><button style="float:right; margin-bottom: 10px;">선택삭제</button></a>
+		 <a href="/order.do"><button style="float:right;margin-bottom: 10px;">주문하기</button></a>
+		<h2>장바구니</h2>
+<!-- 		전체선택<input type="checkbox" id="allCheck" onclick="allCheck(event)"> -->
+		</div>
+		<div class="col-md-12"><hr></div>
+		<div class="row">
+			<!-- c:forEach 의 속성 중 반복 회수가 저장 되어있는 varStatus 변수의 상태 -->
+			<c:forEach items="${list }" var="vo" varStatus="vs">
+				<!-- 데이터 출력 개수가 4의 배수 -->
+				<c:if test="${vs.index != 0 && vs.index % 4 == 0}">
+			${"</div>"}
+			${"<div class = \"row\">"}
+		</c:if>
+				<div class="col-md-3" data-no="${vo.goodsNo }">			
+				<input type="checkbox" class="check_all_list" id="agree1" onclick="checkAllList(event)">
+					<div class="thumbnail">
+						<img src="${vo.fileName }" alt="${vo.fileName }"
+							style="width: 100%">
+						<div class="caption">
+							<div>${vo.name_kr }</div>
+							<p>
+								옵션 : ${vo.goodsDiv }/ ${vo.cup_size }/${vo.cup }/<br />시럽:${vo.syrup }
+								<%-- 수량 :${vo.quantity }가격:${vo.price } --%>
+							</div>
+						</div>
+					</div>
+			</c:forEach>
+			</div>
+	</div>
+</body>
+</html>

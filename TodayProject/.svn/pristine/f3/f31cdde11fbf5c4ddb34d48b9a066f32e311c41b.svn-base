@@ -1,0 +1,136 @@
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"%>
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>웹짱:회원가입</title>
+<link rel="stylesheet" href="/css/html.css">
+<link rel="stylesheet" href="/css/table.css">
+<!-- 라이브러리 등록 : CDN방식 -->
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style type="text/css">
+	th{
+		width: 200px;
+	}
+</style>
+	
+</head>
+<body>
+<div class = "container">
+	<h1>회원가입</h1>
+	<div class="row">
+	<form action="write.do" method="post">
+	<!-- table -> caption,thead,tbody,tfooter -> tr -> th,td -> data -->
+	<table class="table">
+		<tbody>
+			<tr class="dataRow">
+				<th>아이디</th>
+				<td>
+					<!-- placeholder - 데이터가 비어있는경우 배경글자
+					required - 필수입력. pattern - 정규표현식. 데이터 유효성검사 
+					autocomplete : 자동완성. on/off. 
+					maxlength : 최대 입력 개수
+					title : 풍선 도움말. input tag의 패턴과 같이쓰면 데이터가 유효하지
+							않을 때 나타나는 메시지로 사용된다. -->
+					
+					<input name="id" id="id" placeholder="아이디 입력"
+					required="required" pattern="[a-zA-Z]\w{3,19}" maxlength="10"
+					autocomplete="off" title="영숫자_ 4자~20자 사이. 영문자로 시작">
+				</td>
+			</tr>
+			<tr>
+				<th>비밀번호</th>
+				<td>
+					<input name="pw" id="pw" type="password"
+					placeholder="비밀번호 입력" maxlength="20"
+					required="required" pattern=".{4,20}"
+					title="4자~20자 사이.">
+				</td>
+			</tr>
+			<tr>
+				<th>비밀번호 확인</th>
+				<td>
+					<input id="pw2" type="password"
+					placeholder="비밀번호 확인 입력" maxlength="20"
+					required="required" pattern=".{4,20}"
+					title="4자~20자 사이.">
+				</td>
+			</tr>
+			<tr>
+				<th >이름</th>
+				<td>
+					<input name="name" id="name" type="text"
+					placeholder="이름 입력" maxlength="10"
+					required="required" pattern="[가-힣]{2,10}"
+					title="2자~10자 사이. 한글만 가능.">
+				</td>
+			</tr>
+			<tr>
+				<th >성별</th>
+				<td>
+				<!-- type = "radio"  : 같은 이름의 input태그가 여러개.한개만 선택가능.  -->
+					<input name="gender" type="radio" value="남자" 
+					style="width:50px" checked="checked"> 남자 
+					<input name="gender" type="radio" value="여자"  
+					style="width:50px"> 여자
+				</td>
+			</tr>
+			<tr>
+				<th >생년월일</th>
+				<td>
+					<input name="birth" id="birth"
+					placeholder="yyyymmdd"
+					required="required" 
+					title="생년월일은 yyyymmdd 연속된 숫자 8자를 사용하셔야 합니다.">
+				</td>
+			</tr>
+			<tr>
+				<th >연락처</th>
+				<td>
+<!-- 				name="tel"이 3개가있다. 배열로 받는다. -->
+<!-- 				request.getParameterValues("tel") -->
+					<select name="tel" id="tel1" style="height: 2.1em">
+						<option>010</option>
+						<option>02</option>
+						<option>031</option>
+						<option>032</option>
+						<option>033</option>
+						<option>041</option>
+						<option>042</option>
+						<option>043</option>
+					</select> -
+					<input name="tel" id="tel2" pattern="[0-9]{3,4}"
+					style="width:50px" maxlength="4"> -
+					<input name="tel" id="tel3" pattern="[0-9]{3,4}"
+					style="width:50px" maxlength="4">
+				</td>
+			</tr>
+			<tr>
+				<th >이메일</th>
+				<td>
+					<input name="email" id="email"
+					placeholder="아이디@도메인"
+					required="required" 
+					pattern="[0-9a-zA-Z]([-_.]?[0-9a-zA-Z])*@[0-9a-zA-Z]([-_.]?[0-9a-zA-Z])*.[a-zA-Z]{2,3}"
+					title="아이디@그룹.그룹[.국가]">
+				</td>
+			</tr>
+		</tbody>
+		<tfoot>
+			<tr>
+				<td colspan="2">
+					<button>가입</button>
+					<button type="reset">새로입력</button>
+					<button type="button" onclick="location='/'">취소</button>
+<!-- 					<button type="button" onclick="history.go(-2)">취소</button> -->
+				</td>
+			</tr>
+		</tfoot>
+	</table>
+	</form>
+	</div>
+</div>
+</body>
+</html>

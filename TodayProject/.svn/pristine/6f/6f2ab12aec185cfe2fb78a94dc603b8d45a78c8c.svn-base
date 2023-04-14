@@ -1,0 +1,112 @@
+package com.today.main;
+
+import java.util.HashMap;
+import java.util.Map;
+
+import com.today.member.controller.MemberController;
+import com.today.member.dao.MemberDAOImpl;
+import com.today.member.service.MemberLoginServiceImpl;
+
+
+// 서버를 실행하게 되면 DispatcherServelet.init()가 실행되면서 호출해서 실행되는 클래스
+// 객체를 생성하고 필요한 객체를 setter나 생성자를 이용해서 넣어준다.
+public class Init {
+	// controller 저장변수 선언
+	private static Map<String, Object> controllerMap = new HashMap<>();
+	private static Map<String, ServiceInterface> serviceMap = new HashMap<>();
+	private static Map<String, Object> daoMap = new HashMap<>();
+	
+	// 객체 생성해서 필요한 객체를 저장(조립)한다.
+	// new를 계속 하면 그만큼 객체가 계속 생겨나기 때문에 다른 클래스에서 new가 나오면 안된다.
+	// 그래서 최초에 한번만 실행되는 init 클래스에서만 new가 나와야 한다.
+	public static void init() {
+		// controller 생성
+//		controllerMap.put("noticeController", new NoticeController());
+//		controllerMap.put("boardController", new BoardController());
+		controllerMap.put("memberController", new MemberController());
+//		controllerMap.put("imageController", new ImageController());
+//		
+//		// dao 생성
+//		daoMap.put("noticeDAO", new NoticeDAOImpl());
+//		daoMap.put("boardDAO", new BoardDAOImpl());
+		daoMap.put("memberDAO", new MemberDAOImpl());
+//		daoMap.put("imageDAO", new ImageDAOImpl());
+//		
+//		// Service 생성 - list, view, write, update, delete ...
+//		// 공지사항
+//		serviceMap.put("noticeListServiceImpl", new NoticeListServiceImpl());
+//		serviceMap.put("noticeViewServiceImpl", new NoticeViewServiceImpl());
+//		serviceMap.put("noticeWriteServiceImpl", new NoticeWriteServiceImpl());
+//		serviceMap.put("noticeUpdateServiceImpl", new NoticeUpdateServiceImpl());
+//		serviceMap.put("noticeDeleteServiceImpl", new NoticeDeleteServiceImpl());
+//		
+//		// 게시판 서비스 생성
+//		serviceMap.put("boardListServiceImpl", new BoardListServiceImpl());
+//		serviceMap.put("boardViewServiceImpl", new BoardViewServiceImpl());
+//		serviceMap.put("boardWriteServiceImpl", new BoardWriteServiceImpl());
+//		serviceMap.put("boardUpdateServiceImpl", new BoardUpdateServiceImpl());
+//		serviceMap.put("boardDeleteServiceImpl", new BoardDeleteServiceImpl());
+//		// 회원관리 서비스 생성
+		serviceMap.put("memberLoginServiceImpl", new MemberLoginServiceImpl());
+//		// 이미지 서비스 생성
+//		serviceMap.put("imageListServiceImpl", new ImageListServiceImpl());
+//		serviceMap.put("imageViewServiceImpl", new ImageViewServiceImpl());
+//		serviceMap.put("imageWriteServiceImpl", new ImageWriteServiceImpl());
+//		serviceMap.put("imageUpdateImgServiceImpl", new ImageUpdateImgServiceImpl());
+//		serviceMap.put("imageUpdateServiceImpl", new ImageUpdateServiceImpl());
+//		serviceMap.put("imageDeleteServiceImpl", new ImageDeleteServiceImpl());
+//		
+//		//dao -> service : 조립
+//		// 공지사항
+//		serviceMap.get("noticeListServiceImpl").setDao(daoMap.get("noticeDAO"));
+//		serviceMap.get("noticeViewServiceImpl").setDao(daoMap.get("noticeDAO"));
+//		serviceMap.get("noticeWriteServiceImpl").setDao(daoMap.get("noticeDAO"));
+//		serviceMap.get("noticeUpdateServiceImpl").setDao(daoMap.get("noticeDAO"));
+//		serviceMap.get("noticeDeleteServiceImpl").setDao(daoMap.get("noticeDAO"));	
+//		
+//		// 게시판 조립
+//		serviceMap.get("boardListServiceImpl").setDao(daoMap.get("boardDAO"));
+//		serviceMap.get("boardViewServiceImpl").setDao(daoMap.get("boardDAO"));
+//		serviceMap.get("boardWriteServiceImpl").setDao(daoMap.get("boardDAO"));
+//		serviceMap.get("boardUpdateServiceImpl").setDao(daoMap.get("boardDAO"));
+//		serviceMap.get("boardDeleteServiceImpl").setDao(daoMap.get("boardDAO"));		
+//		// 회원관리 조립
+		serviceMap.get("memberLoginServiceImpl").setDao(daoMap.get("memberDAO"));
+//		// 이미지 조립
+//		serviceMap.get("imageListServiceImpl").setDao(daoMap.get("imageDAO"));
+//		serviceMap.get("imageViewServiceImpl").setDao(daoMap.get("imageDAO"));
+//		serviceMap.get("imageWriteServiceImpl").setDao(daoMap.get("imageDAO"));
+//		serviceMap.get("imageUpdateImgServiceImpl").setDao(daoMap.get("imageDAO"));
+//		serviceMap.get("imageUpdateServiceImpl").setDao(daoMap.get("imageDAO"));
+//		serviceMap.get("imageDeleteServiceImpl").setDao(daoMap.get("imageDAO"));		
+//		
+//		// service -> controller : 조립
+//		// 공지사항
+//		((NoticeController)(controllerMap.get("noticeController"))).setNoticeListService(serviceMap.get("noticeListServiceImpl"));
+//		((NoticeController)(controllerMap.get("noticeController"))).setNoticeViewService(serviceMap.get("noticeViewServiceImpl"));
+//		((NoticeController)(controllerMap.get("noticeController"))).setNoticeWriteService(serviceMap.get("noticeWriteServiceImpl"));
+//		((NoticeController)(controllerMap.get("noticeController"))).setNoticeUpdateService(serviceMap.get("noticeUpdateServiceImpl"));
+//		((NoticeController)(controllerMap.get("noticeController"))).setNoticeDeleteService(serviceMap.get("noticeDeleteServiceImpl"));		
+//		
+//		// 게시판
+//		((BoardController)(controllerMap.get("boardController"))).setBoardListService(serviceMap.get("boardListServiceImpl"));
+//		((BoardController)(controllerMap.get("boardController"))).setBoardViewService(serviceMap.get("boardViewServiceImpl"));
+//		((BoardController)(controllerMap.get("boardController"))).setBoardWriteService(serviceMap.get("boardWriteServiceImpl"));
+//		((BoardController)(controllerMap.get("boardController"))).setBoardUpdateService(serviceMap.get("boardUpdateServiceImpl"));
+//		((BoardController)(controllerMap.get("boardController"))).setBoardDeleteService(serviceMap.get("boardDeleteServiceImpl"));		
+//		// 회원관리
+		((MemberController)(controllerMap.get("memberController"))).setMemberLoginService(serviceMap.get("memberLoginServiceImpl"));
+//		// 이미지
+//		((ImageController)(controllerMap.get("imageController"))).setImageListService(serviceMap.get("imageListServiceImpl"));
+//		((ImageController)(controllerMap.get("imageController"))).setImageViewService(serviceMap.get("imageViewServiceImpl"));
+//		((ImageController)(controllerMap.get("imageController"))).setImageWriteService(serviceMap.get("imageWriteServiceImpl"));
+//		((ImageController)(controllerMap.get("imageController"))).setImageUpdateImgService(serviceMap.get("imageUpdateImgServiceImpl"));
+//		((ImageController)(controllerMap.get("imageController"))).setImageUpdateService(serviceMap.get("imageUpdateServiceImpl"));
+//		((ImageController)(controllerMap.get("imageController"))).setImageDeleteService(serviceMap.get("imageDeleteServiceImpl"));		
+	}
+	
+	// controller 꺼내가기 - 변수가 private이라서 직접 사용 할 수 없고 getter를 이용해서 꺼내간다.
+	public static Object getController(String key) {
+		return controllerMap.get(key);
+	}
+}

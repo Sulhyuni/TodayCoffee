@@ -1,0 +1,66 @@
+package com.today.main;
+
+import java.util.HashMap;
+import java.util.Map;
+
+import com.today.member.controller.MemberController;
+import com.today.member.dao.MemberDAOImpl;
+import com.today.member.service.MemberLoginServiceImpl;
+
+public class Init {
+	// controller 저장변수 선언
+	private static Map<String, Object> controllerMap = new HashMap<>();
+	private static Map<String, ServiceInterface> serviceMap = new HashMap<>();
+	private static Map<String, Object> daoMap = new HashMap<>();
+	
+	public static void init() {
+		// controller 생성
+//		controllerMap.put("noticeController", new NoticeController());
+		controllerMap.put("memberController", new MemberController());
+//		
+//		// dao 생성
+//		daoMap.put("noticeDAO", new NoticeDAOImpl());
+		daoMap.put("memberDAO", new MemberDAOImpl());
+
+//		
+//		// Service 생성 - list, view, write, update, delete ...
+//		// 공지사항
+//		serviceMap.put("noticeListServiceImpl", new NoticeListServiceImpl());
+//		serviceMap.put("noticeViewServiceImpl", new NoticeViewServiceImpl());
+//		serviceMap.put("noticeWriteServiceImpl", new NoticeWriteServiceImpl());
+//		serviceMap.put("noticeUpdateServiceImpl", new NoticeUpdateServiceImpl());
+//		serviceMap.put("noticeDeleteServiceImpl", new NoticeDeleteServiceImpl());
+
+//		// 회원관리 서비스 생성
+		serviceMap.put("memberLoginServiceImpl", new MemberLoginServiceImpl());
+
+		
+//		//dao -> service : 조립
+//		// 공지사항
+//		serviceMap.get("noticeListServiceImpl").setDao(daoMap.get("noticeDAO"));
+//		serviceMap.get("noticeViewServiceImpl").setDao(daoMap.get("noticeDAO"));
+//		serviceMap.get("noticeWriteServiceImpl").setDao(daoMap.get("noticeDAO"));
+//		serviceMap.get("noticeUpdateServiceImpl").setDao(daoMap.get("noticeDAO"));
+//		serviceMap.get("noticeDeleteServiceImpl").setDao(daoMap.get("noticeDAO"));	
+//		
+//		// 회원관리 조립
+		serviceMap.get("memberLoginServiceImpl").setDao(daoMap.get("memberDAO"));
+//		
+//		// service -> controller : 조립
+//		// 공지사항
+//		((NoticeController)(controllerMap.get("noticeController"))).setNoticeListService(serviceMap.get("noticeListServiceImpl"));
+//		((NoticeController)(controllerMap.get("noticeController"))).setNoticeViewService(serviceMap.get("noticeViewServiceImpl"));
+//		((NoticeController)(controllerMap.get("noticeController"))).setNoticeWriteService(serviceMap.get("noticeWriteServiceImpl"));
+//		((NoticeController)(controllerMap.get("noticeController"))).setNoticeUpdateService(serviceMap.get("noticeUpdateServiceImpl"));
+//		((NoticeController)(controllerMap.get("noticeController"))).setNoticeDeleteService(serviceMap.get("noticeDeleteServiceImpl"));		
+//		
+//		// 회원관리
+		((MemberController)(controllerMap.get("memberController"))).setMemberLoginService(serviceMap.get("memberLoginServiceImpl"));
+
+	}
+	
+	// controller 꺼내가기 - 변수가 private이라서 직접 사용 할 수 없고 getter를 이용해서 꺼내간다.
+	public static Object getController(String key) {
+		return controllerMap.get(key);
+	}
+}

@@ -1,0 +1,214 @@
+package com.today.member.controller;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
+
+import com.today.main.Execute;
+import com.today.main.ServiceInterface;
+import com.today.member.vo.MemberVO;
+import com.webjjang.util.PageObject;
+
+public class MemberController {
+
+	// private으로 서비스 생성
+	private ServiceInterface memberLoginService;
+	private ServiceInterface memberWriteService;
+	private ServiceInterface memberListService;
+	private ServiceInterface memberViewService;
+	private ServiceInterface memberCheckIdService;
+	private ServiceInterface memberFindIdService;
+	private ServiceInterface memberFindPwService;
+	private ServiceInterface memberCheckPwService;
+
+	// setter
+	public void setMemberLoginService(ServiceInterface memberLoginService) {
+		this.memberLoginService = memberLoginService;
+	}
+	public void setMemberWriteService(ServiceInterface memberWriteService) {
+		this.memberWriteService = memberWriteService;
+	}
+	public void setMemberListService(ServiceInterface memberListService) {
+		this.memberListService = memberListService;
+	}
+	public void setMemberViewService(ServiceInterface memberViewService) {
+		this.memberViewService = memberViewService;
+	}
+	public void setMemberCheckIdService(ServiceInterface memberCheckIdService) {
+		this.memberCheckIdService = memberCheckIdService;
+	}
+	public void setMemberFindIdService(ServiceInterface memberFindIdService) {
+		this.memberFindIdService = memberFindIdService;
+	}
+	public void setMemberFindPwService(ServiceInterface memberFindPwService) {
+		this.memberFindPwService = memberFindPwService;
+	}
+	public void setMemberCheckPwService(ServiceInterface memberCheckPwService) {
+		this.memberCheckPwService = memberCheckPwService;
+	}
+	
+	// 실행 메서드 - return되는 String 데이터는 jsp또는 url정보가 된다.
+	public String execute(HttpServletRequest request) throws Exception{
+		
+		System.out.println("MemberController.execute().request : " + request);
+		// 어떤 요청
+		String uri = request.getRequestURI();
+		String method = request.getMethod();
+		System.out.println("MemberController.execute().method : " + method);
+		String jsp = null;
+		// 처리
+		switch (uri) {
+		case "/member/login.do":
+			System.out.println("controller");
+			HttpSession session = request.getSession();
+			if(request.getMethod().equals("GET")) {
+				jsp="member/login";
+			}else {
+				MemberVO loginVO = new MemberVO();
+				// 입력받은 id, pw 세팅
+				loginVO.setId(request.getParameter("id"));
+				loginVO.setPw(request.getParameter("pw"));
+				session.setAttribute("login",Execute.run(memberLoginService, loginVO));
+				if(session.getAttribute("login") == null) throw new Exception("아이디와 비밀번호를 확인해주세요");
+				jsp = "redirect:/"; // main으로 자동이동
+			}
+			break;
+		case "/member/logout.do":
+			session = request.getSession();
+			session.removeAttribute("login");
+			session.invalidate();
+			jsp = "redirect:/";
+			
+			break;
+		case "/member/join.do":
+			session = request.getSession();
+			if(request.getMethod().equals("GET")) {
+				jsp = "member/join";
+			} else { // post
+				// 데이터 수집 - id,pw 받아야 한다.
+				MemberVO loginVO = new MemberVO();
+				loginVO.setId(request.getParameter("id"));
+				loginVO.setPw(request.getParameter("pw"));
+				// 글등록 처리해 보자
+				session.setAttribute("login",Execute.run(memberLoginService, loginVO)); 
+				if(session.getAttribute("login") == null) throw new Exception("아이디와 비밀번호를 확인해주세요");
+				jsp = "redirect:/"; // main으로 자동이동
+			}
+			break;
+		case "/member/write.do":
+			if(request.getMethod().equals("GET")) {
+				jsp = "member/write";
+			} else {
+				// 데이터 수집
+				MemberVO writeVO = new MemberVO();
+				writeVO.setId(request.getParameter("id"));
+				writeVO.setPw(request.getParameter("pw"));
+				writeVO.setName(request.getParameter("name"));
+				writeVO.setGender(request.getParameter("gender"));
+				writeVO.setBirth(request.getParameter("birth"));
+				writeVO.setTel(request.getParameter("tel1")+"-"+request.getParameter("tel2")+"-"+request.getParameter("tel3"));
+				writeVO.setEmail(request.getParameter("email"));
+				// 글등록 처리해 보자
+				Execute.run(memberWriteService, writeVO); 
+				
+				jsp = "redirect:/";
+			}
+			break;
+		case "/member/list.do":
+			// 페이지 정보 받기
+
+			PageObject pageObject = PageObject.getInstance(request);
+			// 리스트라고 생각을 하고 처리해 보자. -> request에 담는다.
+			request.setAttribute("list", Execute.run(memberListService, pageObject));
+			// jsp - 리스트 데이터 아래의 페이지 네비게이션을 위한 데이터 저장
+			request.setAttribute("pageObject", pageObject);
+			System.out.println(jsp);
+			jsp = "member/list";
+			break;
+		case "/member/view.do":
+			// 글보기라고 생각을 하고 처리해 보자.
+			// 데이터 수집 -> 반드시 리스트 부터 시작하여야 데이터가 넘어온다.
+			String id = request.getParameter("id");
+			// 데이터 처리 -> request에 담는다. -> jsp에서 꺼내 쓴다. EL 객체 사용
+			MemberVO viewVO 
+			= (MemberVO) Execute.run(memberViewService, new Object[] {id});
+			// 내용 줄바꿈 처리
+//			viewVO.setContent(viewVO.getContent().replace("\n", "<br/>"));
+			request.setAttribute("vo", viewVO);
+			jsp = "member/view";
+			break;
+			
+		case "/member/checkId.do":
+			//중복체크창
+			id = request.getParameter("id");
+			request.setAttribute("result", Execute.run(memberCheckIdService,id));
+			jsp = "member/checkId";
+			break;
+		case "/member/mymenu.do":
+			session = request.getSession();
+			
+			id = request.getParameter("id");
+			if(id!=null) {
+			MemberVO vo 
+			= (MemberVO) Execute.run(memberViewService, new Object[] {id});
+			request.setAttribute("vo", vo);
+			}
+			jsp = "member/mymenu";
+			break;
+		case "/member/findId.do":
+			session = request.getSession();
+			if(request.getMethod().equals("GET")) {
+				jsp = "member/findId";
+			} else { // post
+				// 데이터 수집 - name,birth,tel1,2,3 받아야 한다.
+				MemberVO findIdVO = new MemberVO();
+				findIdVO.setName(request.getParameter("name"));
+				findIdVO.setBirth(request.getParameter("birth"));
+				findIdVO.setTel(request.getParameter("tel1")+"-"+request.getParameter("tel2")+"-"+request.getParameter("tel3"));
+
+				request.setAttribute("id", Execute.run(memberFindIdService, findIdVO));
+				
+				jsp = "member/afterFI"; 
+			}
+			break;
+		case "/member/findPw.do":
+			if(request.getMethod().equals("GET")) {
+				jsp = "member/findPw";
+			} else { // post
+				// 데이터 수집 - id 받아야 한다.
+				MemberVO findPwVO = new MemberVO();
+				findPwVO.setId(request.getParameter("id"));
+				findPwVO.setName(request.getParameter("name"));
+				findPwVO.setTel(request.getParameter("tel1")+"-"+request.getParameter("tel2")+"-"+request.getParameter("tel3"));
+				String pw = (String) Execute.run(memberFindPwService, findPwVO);
+				//pw 끝 두자리 암호화
+				String secretPw = pw.substring(0,pw.length()-2)+"**";
+//				System.out.println(secretPw);
+				//암호화된 pw를 세팅
+				request.setAttribute("pw", secretPw);
+				
+				jsp = "member/afterFP"; 
+			}
+			break;
+		case "/member/checkPw.do":
+			session = request.getSession();
+			// 글보기라고 생각을 하고 처리해 보자.
+			// 데이터 수집 -> 반드시 리스트 부터 시작하여야 데이터가 넘어온다.
+			MemberVO checkPwVO = new MemberVO();
+			checkPwVO.setId(session.getId());
+			checkPwVO.setPw(request.getParameter("pw"));
+			// 데이터 처리 -> request에 담는다. -> jsp에서 꺼내 쓴다. EL 객체 사용
+			checkPwVO 
+			= (MemberVO) Execute.run(memberCheckPwService,checkPwVO);
+			request.setAttribute("vo", checkPwVO);
+			jsp = "member/view";
+			break;
+						
+		default:
+			throw new Exception("잘못된 페이지를 요청하셨습니다.");
+		}
+		return jsp;
+		
+	}
+	
+	
+}

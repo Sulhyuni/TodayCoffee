@@ -1,0 +1,276 @@
+package com.today.mymenu.dao;
+
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.util.ArrayList;
+import java.util.List;
+
+import com.today.cart.vo.CartVO;
+import com.today.io.db.DB;
+import com.today.mymenu.vo.MyMenuVO;
+
+public class MyMenuDAOImpl implements MyMenuDAO{
+
+	private Connection con = null;
+	private PreparedStatement pstmt = null;
+	private ResultSet rs = null;
+	
+	// 리스트
+	@Override // 리스트
+	public List<MyMenuVO> list(String id) throws Exception {
+		System.out.println("MymenuDAOImpl.list()");
+		List<MyMenuVO>list = null;
+		try {
+			// 1. 확인 2. 연결
+			con = DB.getConnection();
+			// 3. sql
+			String sql = " select mm.mmNo, g.Name_kr, g.Goodsview, mm.mmName , g.goodsNo, g.goodsDiv, g.price "
+					+ " , g.fileName, go.cup_size, go.cup, go.syrup, go.heating, go.optionNo, mm.totalPrice "
+					+ " from mymenu mm,goods g, goods_option go , member m "
+					+ " where mm.id = m.id and mm.goodsNo = g.goodsNo and mm.optionNo = go.optionNo "
+					+ " and mm.id = ? "
+					+ " order by mmNo desc ";
+			// 4. 실행객체
+			pstmt = con.prepareStatement(sql);
+			pstmt.setString(1, id);
+			// 5. 실행
+			rs = pstmt.executeQuery();
+			// 6. 데이터 저장 또는 표시
+			if(rs != null) {
+				while(rs.next()) {
+				if(list == null)list = new ArrayList<>();
+				MyMenuVO vo = new MyMenuVO();
+				vo.setMmNo(rs.getLong("mmNo"));
+				vo.setName_kr(rs.getString("name_kr"));
+				vo.setGoodsview(rs.getString("goodsview"));
+				vo.setMmName(rs.getString("mmName"));
+				vo.setGoodsNo(rs.getLong("goodsNo"));
+				vo.setGoodsDiv(rs.getString("goodsDiv"));
+				vo.setPrice(rs.getString("price"));
+				vo.setFileName(rs.getString("fileName"));
+				vo.setOptionNo(rs.getLong("optionNo"));
+				vo.setCup_size(rs.getString("cup_size"));
+				vo.setCup(rs.getString("cup"));
+				vo.setSyrup(rs.getString("syrup"));
+				vo.setHeating(rs.getString("heating"));
+				vo.setTotalPrice(rs.getLong("totalPrice"));
+				list.add(vo);
+				}// end of while()
+			}// end of if()
+		} catch (Exception e) {
+			e.printStackTrace();
+		}finally {
+			// 7. 닫기
+			DB.close(con, pstmt, rs);
+		}
+		return list;
+	}
+	
+	// 보기
+	@Override // 보기
+	public MyMenuVO view(long no) throws Exception {
+		MyMenuVO vo = null;
+		try {
+			// 1. 확인 2. 연결
+			con = DB.getConnection();
+			// 3. sql
+			String sql = " select mm.mmNo, g.Name_kr, g.Goodsview, mm.mmName, g.goodsNo, g.goodsDiv, g.price "
+					+ " , g.fileName, go.cup_size, go.cup, go.syrup, go.heating, mm.totalPrice "
+					+ " from mymenu mm,goods g, goods_option go , member m "
+					+ " where mm.id = m.id and mm.goodsNo = g.goodsNo and mm.optionNo = go.optionNo "
+					+ " and mmNo = ? ";
+			// 4. 실행객체
+			pstmt = con.prepareStatement(sql);
+			pstmt.setLong(1, no);
+			// 5. 실행
+			rs = pstmt.executeQuery();
+			// 6. 데이터 저장
+			if(rs != null && rs.next()) {
+				vo = new MyMenuVO();
+				vo.setMmNo(rs.getLong("mmNo"));
+				vo.setName_kr(rs.getString("name_kr"));
+				vo.setGoodsview(rs.getString("goodsview"));
+				vo.setMmName(rs.getString("mmName"));
+				vo.setGoodsNo(rs.getLong("goodsNo"));
+				vo.setGoodsDiv(rs.getString("goodsDiv"));
+				vo.setPrice(rs.getString("price"));
+				vo.setFileName(rs.getString("fileName"));
+				vo.setCup_size(rs.getString("cup_size"));
+				vo.setCup(rs.getString("cup"));
+				vo.setSyrup(rs.getString("syrup"));
+				vo.setHeating(rs.getString("heating"));
+				vo.setTotalPrice(rs.getLong("totalPrice"));
+			}// end of if
+		} catch (Exception e) {
+			e.printStackTrace();
+		}finally {
+			// 7. 닫기
+			DB.close(con, pstmt, rs);
+		}// end of t c f 
+		return vo;
+	}// end of view
+	
+	// 담기
+	@Override // 담기
+	public int mymenuAdd(MyMenuVO vo) throws Exception {
+		int result = 0;
+		try {
+			// 1. 확인 2. 연결
+			con = DB.getConnection();
+			// 3. sql
+			String sql = " insert into mymenu(mmNo, goodsNo, optionNo, mmName,id, totalPrice) "
+					+ " values(mymenu_seq.nextval,?, ?, ?,?,?) ";
+			// 4. 실행객체
+			pstmt = con.prepareStatement(sql);
+			pstmt.setLong(1, vo.getGoodsNo());
+			pstmt.setLong(2, vo.getOptionNo());
+			pstmt.setString(3, vo.getMmName());
+			pstmt.setString(4, vo.getId());
+			pstmt.setLong(5, vo.getTotalPrice());
+			// 5. 실행
+			result = pstmt.executeUpdate(); 
+			// 6. 데이터 저장
+		} catch (Exception e) {
+			e.printStackTrace();
+		}finally {
+			// 7. 닫기
+			DB.close(con, pstmt);
+		}
+		return result;
+	}// end of mmAdd
+	
+	// 이름수정
+	@Override // 수정
+	public int update(MyMenuVO vo) throws Exception {
+		int result = 0;
+		try {
+			// 1. 확인 2. 연결
+			con = DB.getConnection();
+			// 3. sql
+			String sql = " update mymenu set mmName = ? where mmNo = ?";
+			// 4. 실행객체
+			pstmt = con.prepareStatement(sql);
+			pstmt.setString(1, vo.getMmName());
+			pstmt.setLong(2, vo.getMmNo());
+			// 5. 실행
+			result = pstmt.executeUpdate();
+			// 6. 데이터 저장
+		} catch (Exception e) {
+			e.printStackTrace();
+		}finally {
+			// 7. 닫기
+			DB.close(con, pstmt);
+		}// end of t c f
+		return result;
+	}// end of update
+	
+	// 삭제
+	@Override // 삭제
+	public int delete(MyMenuVO vo) throws Exception {
+		int result = 0;
+		try {
+			// 1. 확인 2. 연결
+			con = DB.getConnection();
+			// 3. sql
+			String sql = "delete from mymenu where mmNo = ? ";
+			// 4. 실행객체
+			pstmt = con.prepareStatement(sql);
+			pstmt.setLong(1, vo.getMmNo());
+			// 5. 실행
+			result = pstmt.executeUpdate();
+			// 6. 데이터 저장
+		} catch (Exception e) {
+			e.printStackTrace();
+		}finally {
+			// 7. 닫기
+			DB.close(con, pstmt);
+		}// end of t c f
+		return result;
+	}// end of delete
+	
+	// 전체삭제
+	@Override // 전체삭제
+	public int Alldelete(MyMenuVO vo) throws Exception {
+		int result = 0;
+		try {
+			// 1. 확인 2. 연결
+			con = DB.getConnection();
+			// 3. sql
+			String sql = " delete from mymenu where id = ? ";
+			// 4. 실행객체
+			pstmt = con.prepareStatement(sql);
+			pstmt.setString(1, vo.getId());
+			// 5. 실행
+			result = pstmt.executeUpdate();
+			// 6. 데이터 저장
+		} catch (Exception e) {
+			e.printStackTrace();
+		}finally {
+			// 7. 닫기
+			DB.close(con, pstmt);
+		}
+		return result;
+	}// end of allDelete
+	// 옵션담기
+	@Override // 옵션담기
+	public int optionAdd(MyMenuVO vo) throws Exception {
+		int result = 0;
+		try {
+			// 1. 확인 2. 연결
+			con = DB.getConnection();
+			// 3. sql
+			String sql = " INSERT INTO goods_option (optionNo, goodsNo, cup_size, cup, syrup, heating ) "
+					+ " VALUES (goods_option_seq.nextval, ?, ?, ?, ?, ?) ";
+			// 4. 실행객체
+			pstmt = con.prepareStatement(sql);
+			pstmt.setLong(1, vo.getGoodsNo());
+			pstmt.setString(2, vo.getCup_size());
+			pstmt.setString(3, vo.getCup());
+			pstmt.setString(4, vo.getSyrup());
+			pstmt.setString(5, vo.getHeating());
+			// 5. 실행
+			result = pstmt.executeUpdate();
+			// 6. 데이터 저장
+		} catch (Exception e) {
+			e.printStackTrace();
+		}finally {
+			// 7. 닫기
+			DB.close(con, pstmt);
+		}// end of t c f
+		return result;
+	}// end of optionAdd
+	// 옵션 번호 불러오기
+	@Override // 옵션번호불러오기
+	public MyMenuVO optionView(MyMenuVO vo) throws Exception {
+		MyMenuVO mmviewVO = null;
+		try {
+			con = DB.getConnection();
+			String sql = " SELECT optionNo FROM goods_Option WHERE goodsNo = ? AND";
+			if (vo.getHeating() == null) {
+				sql += " cup_size = ? AND cup = ? ANd syrup = ? ";
+				pstmt = con.prepareStatement(sql);
+				pstmt.setLong(1, vo.getGoodsNo());
+				pstmt.setString(2, vo.getCup_size());
+				pstmt.setString(3, vo.getCup());
+				pstmt.setString(4, vo.getSyrup());
+			} else {
+				sql += " heating = ? ";
+				pstmt = con.prepareStatement(sql);
+				pstmt.setLong(1, vo.getGoodsNo());
+				pstmt.setString(2, vo.getHeating());
+			}
+			rs = pstmt.executeQuery();
+			if(rs != null && rs.next()) {
+				mmviewVO = new MyMenuVO();
+				mmviewVO.setOptionNo(rs.getLong("optionNo"));
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw new Exception("옵션 번호 불러오는 DB처리 중 오류 발생");
+		} finally {
+			DB.close(con, pstmt, rs);
+		}
+		return mmviewVO;
+	}
+}

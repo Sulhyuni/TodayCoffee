@@ -1,0 +1,63 @@
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+	pageEncoding="UTF-8"%>
+<%@taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
+<!DOCTYPE html>
+<html>
+<head>
+<style type="text/css">
+
+</style>
+<meta charset="UTF-8">
+<title>장바구니</title>
+
+<script type="text/javascript">
+	function count(type) {
+		// 결과를 표시
+		const resultElement = document.getElementById('result');
+
+		// 화면에 표시된 값
+		let number = resultElement.innerText;
+		// + - 
+		if (type === 'plus') {
+			number = parseInt(number) + 1;
+		} else if (type === 'minus') {
+			number = parseInt(number) - 1;
+		}
+		// 결과 출력
+		resultElement.innerText = number;
+	}
+</script>
+</head>
+<body>
+	<div class="container">
+		<h2>장바구니</h2>
+		<a href="selectdelete.do" class="btn btn-default">전체삭제</a> 
+		<a href="selectdelete.do" class="btn btn-default">선택삭제</a> 
+		<a href="/order.do" class="btn btn-default">주문하기</a>
+		<div class="row">
+			<!-- c:forEach 의 속성 중 반복 회수가 저장 되어있는 varStatus 변수의 상태 -->
+			<c:forEach items="${list }" var="vo" varStatus="vs">
+				<!-- 데이터 출력 개수가 4의 배수 -->
+				<c:if test="${vs.index != 0 && vs.index % 4 == 0}">
+			${"</div>"}
+			${"<div class = \"row\">"}
+		</c:if>
+				<div class="col-md-3" data-no="${vo.goodsNo }">
+					<label class="checkbox"><input type="checkbox"name="chk" value=""></label>
+					<div class="thumbnail">
+						<img src="${vo.fileName }" alt="${vo.fileName }"
+							style="width: 100%">
+						<div class="caption">
+							<div>${vo.name_kr }</div>
+							<p>${vo.goodsDiv }/
+								${vo.cup_size }/${vo.cup }/${vo.syrup } <br />수량 :${vo.quantity }
+								가격:${vo.price }
+							</p>
+						</div>
+					</div>
+				</div>
+			</c:forEach>
+		</div>
+	</div>
+</body>
+</html>

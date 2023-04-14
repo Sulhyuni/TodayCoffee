@@ -1,0 +1,106 @@
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+	pageEncoding="UTF-8"%>
+<%@taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>장바구니 상세</title>
+<!-- 라이브러리 등록  : CDN 방식 -->
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.1/jquery.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+<script type="text/javascript">
+$(function(){
+	$("#deleteBtn").click(function(){
+		if(!confirm("이 상품을 장바구니에서 비우시겠습니까?"))return false;
+	});// end of deleteBtn
+
+	let price = ${vo.totalPrice / vo.quantity };
+	
+	// 총가격 - 상품가격+시럽+컵종류 = +-
+	
+	let quantity = ${vo.quantity};
+	let quantityElement = $("#quantity");
+	$("#increaseBtn").click(function(){
+		quantity++;
+		quantityElement.val(quantity);
+		calculateTotalPrice();
+	});
+	
+	$("#decreaseBtn").click(function(){
+	  if (quantity > 1) {
+		  quantity--;
+		  quantityElement.val(quantity);
+	    calculateTotalPrice();
+	  }
+	});
+	  function calculateTotalPrice() {
+		  let totalPrice = price * quantity;
+		  $("#totalPrice").val(totalPrice);
+		}
+});
+</script>
+</head>
+<body>
+	<div class="container">
+		<div class="col-md-12">
+			<a href="list.do">
+				<button style="float: right; margin-bottom: 10px;">장바구니</button>
+			</a>
+<%-- 			<a href="update.do?no=${vo.cartNo }"> --%>
+<!-- 				<button style="float: right; margin-bottom: 10px;">수량변경</button> -->
+<!-- 			</a> -->
+			<a href="delete.do?no=${vo.cartNo }">
+				<button id="deleteBtn" style="float: right; margin-bottom: 10px;">삭제</button>
+			</a>
+			<h2>상세옵션</h2>
+		</div>
+		<div class="col-md-12">
+			<hr>
+		</div>
+		<div class="row">
+			<div class="col-md-4">
+				<img src="${vo.fileName }" class="img-thubnail" />
+			</div>
+			<div class="col-md-8">${vo.name_kr }
+				<div style="margin-top: 20px;">
+					<hr>
+					<div class="row">
+						<div class="col-md-8"
+							style="margin-bottom: 30px; margin-top: -20px;">상품 설명
+							:&nbsp;${vo.goodsview }</div>
+					</div>
+				</div>
+				<div class="row">
+					<div class="col-md-10">분류 : &nbsp;${vo.goodsDiv }</div>
+				</div>
+				<div class="row">
+					<div class="col-md-10">사이즈 :&nbsp; ${vo.cup_size }</div>
+				</div>
+				<div class="row">
+					<div class="col-md-10">컵 : &nbsp;${vo.cup }</div>
+				</div>
+				<div class="row">
+					<div class="col-md-10"id="syrup">시럽 : &nbsp;${vo.syrup }</div>
+				</div>
+				
+			<form method="post"id="updateForm">
+			<input type="hidden" name="goodsNo" value="${vo.goodsNo }">
+				<div class="form-group">
+			<label for="quantity">수량</label><br/>
+			<button type="button" id="increaseBtn"class="btn btn-default">+</button>
+			<input id="quantity" name="quantity" readonly="readonly" value="${vo.quantity }"></input>
+			<button type="button" id="decreaseBtn"class="btn btn-default">-</button>
+		</div>
+			<div>
+			<label for="totalPrice">가격</label>
+			<input id="totalPrice" name="totalPrice" value="${vo.totalPrice  }"></input>
+		</div>
+			<button type="submit"formaction="/cart/update.do?no=${vo.cartNo }">수정</button>
+		</form>	
+			</div>
+		</div>
+	</div>
+</body>
+</html>

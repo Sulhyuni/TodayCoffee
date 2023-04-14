@@ -1,0 +1,58 @@
+package com.today.member.dao;
+
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+
+import com.today.io.db.DB;
+import com.today.member.vo.MemberVO;
+
+public class MemberDAOImpl implements MemberDAO{
+
+	//필요한 객체
+		private Connection con = null;
+		private PreparedStatement pstmt = null;
+		private ResultSet rs = null;
+	
+	@Override
+	public MemberVO login(MemberVO inVO) throws Exception {
+		// TODO Auto-generated method stub
+		System.out.println("MemberDAOImpl.login().inVO : " + inVO);
+		MemberVO vo = null;
+		try {
+			con = DB.getConnection();
+			String sql = "select m.id, m.name, m.gradeNo, g.gradeName "
+					+ " from member m, grade g "
+					+ " where (id = ? and pw = ?) and (g.gradeNo = m.gradeNo)";
+			System.out.println("sql : " + sql);
+			pstmt = con.prepareStatement(sql);
+			pstmt.setString(1, inVO.getId());
+			pstmt.setString(2, inVO.getPw());
+			rs = pstmt.executeQuery();
+			if(rs!=null&&rs.next()) {
+				vo = new MemberVO();
+				vo.setId(rs.getString("id"));
+				vo.setName(rs.getString("name"));
+				vo.setGradeNo(rs.getInt("gradeNo"));
+				vo.setGradeName(rs.getString("gradeName"));
+			}
+		} catch (Exception e) {
+			// TODO: handle exception
+			e.printStackTrace();
+			throw new Exception("로그인 DB처리중 오류 발생");
+		}finally {
+			DB.close(con, pstmt, rs);
+		}
+		
+		
+		return vo;
+	}// end of login() 
+
+	@Override
+	public int write(MemberVO vo) throws Exception{
+		// TODO Auto-generated method stub
+		int result = 0;
+		return result;
+	}
+
+}// end of MemberDAOImpl class

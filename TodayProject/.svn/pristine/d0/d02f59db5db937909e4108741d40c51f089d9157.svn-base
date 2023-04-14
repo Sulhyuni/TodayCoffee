@@ -1,0 +1,34 @@
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+	pageEncoding="UTF-8"%>
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Today:로그인 페이지</title>
+
+</head>
+<body>
+	<div class="container">
+		<h2>로그인 페이지</h2>
+		<form action="login.do" method="post" id="loginForm">
+			<div class="form-group">
+				<label for="id">아이디:</label> <input class="form-control" id="id"
+					placeholder="아이디" name="id">
+			</div>
+			<div class="form-group">
+				<label for="pw">비밀번호:</label> <input type="password"
+					class="form-control" id="pw" placeholder="비밀번호" name="pw">
+			</div>
+			<div align="center">
+				<button type="submit" style="width: 610px">로그인</button>
+			</div>
+			</form>
+			<br />
+			<div align="center">
+				<a href="join.do"><button style="width: 150px">&nbsp;&nbsp;&nbsp;&nbsp;회원가입&nbsp;&nbsp;&nbsp;&nbsp;</button></a>
+				<a href="findId.do"><button style="width: 150px">&nbsp;아이디 찾기&nbsp;</button></a>
+				<a href="findPw.do"><button style="width: 150px">비밀번호 찾기</button></a>
+			</div>
+	</div>
+</body>
+</html>

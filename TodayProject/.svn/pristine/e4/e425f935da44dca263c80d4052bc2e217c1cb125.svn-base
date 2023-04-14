@@ -1,0 +1,102 @@
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"%>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
+
+
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>글보기</title>
+
+<!-- 라이브러리 등록 -->
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script	src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.1/jquery.min.js"></script>
+<script	src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+ <script type="text/javascript">
+ $(function() {
+	$("#deleteBtn").click(function() {
+		//alert("클릭함");
+		if(!confirm("삭제 하시겠습니까?")) return false;
+	});
+	
+	$("#applyWrite").click(function() {
+		if(${login !=null}){
+		(confirm("응모하시겠습니까?")) 
+			alert("응모되었습니다.");
+		$("#writeForm").submit(function(){
+		//	alert("등록됨")
+		});
+		} else {
+			alert("로그인 후 이용 가능합니다.")
+			return false;
+		}
+		
+	});
+	
+})
+ </script>
+
+</head>
+<body>
+<div class="container">
+	<!-- get방식 -->
+	<div class="col-md-12">
+		<c:if test="${login !=null && login.gradeNo ==9 }">
+			<a href = "update.do?no=${vo.eventNo}&page=${param.page }&perPageNum=${param.perPageNum}">
+				<button style="float: right;" id="updateBtn">수정</button>
+			</a>
+			<a href="delete.do?no=${vo.eventNo}&page=${param.page }&perPageNum=${param.perPageNum}">
+				<button style="float: right; margin-bottom: 10px;" id = "deleteBtn">삭제</button>
+			</a>
+		</c:if>
+	<a href = "list.do?page=${param.page }&perPageNum=${param.perPageNum}"><button style="float: right;">리스트</button></a>
+	<h2>Event</h2>
+	</div>
+	
+	
+	<table class = "table">
+		<tbody>
+			<tr>
+				<th>번호</th>
+				<td>${vo.eventNo }</td>
+			</tr>
+			<tr>
+				<th>제목</th>
+				<td>${vo.title }</td>
+			</tr>
+			<tr>
+				<th>내용</th>
+				<td style="height:5em;">${vo.content }</td>
+			</tr>
+			<tr>
+				<th>시작일</th>
+				<td>${vo.startDate}</td>
+			</tr>
+			<tr>
+				<th>종료일</th>
+				<td>${vo.endDate}</td>
+			</tr>
+			<tr>
+				<th>등록일(수정일)</th>
+				<td>${vo.updateDate }</td>
+			</tr>
+			<tr>
+				<th>조회수</th>
+				<td>${vo.hit}</td>
+			</tr>
+		</tbody>
+	</table>
+	<div>
+	<form action="applyWrite.do" method="post" id="writeForm">
+		<input type="hidden" name="eventNo" value="${vo.eventNo }">
+		<input type="hidden" name="id" value="${idvo.id }">
+		<input type="hidden" name="win" value="${vo.win }">
+			<button id="applyWrite">응모하기</button>
+	</form>
+	</div>	
+	
+</div>
+
+</body>
+</html>

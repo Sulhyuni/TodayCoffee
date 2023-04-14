@@ -1,0 +1,33 @@
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"%>
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Today:휴면해제완료</title>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.1/jquery.min.js"></script>
+ <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+<script type="text/javascript">
+
+$(function(){
+	$("#changePwBtn").click(function(){
+		location="/member/changePw.do";
+	});
+	
+	$("#mainBtn").click(function(){
+		location="/";
+	});
+	
+});
+
+</script>
+</head>
+<body>
+<div class="container">
+	<h1 style="font-size: xx-large;">정상적으로 휴면해제가 되었습니다.<br/>많은 이용 부탁드립니다.</h1>
+	
+	<button  id="changePwBtn">비밀번호 변경하기</button>
+	<button  id="mainBtn">메인으로 가기</button>
+</div>
+</body>
+</html>

@@ -1,0 +1,37 @@
+package com.today.order.dao;
+
+import java.util.List;
+import com.today.order.vo.OrderVO;
+import com.webjjang.util.PageObject;
+
+public interface OrderDAO {
+	public long getTotalRow(PageObject pageObject) throws Exception;
+	
+	public List<OrderVO> list(PageObject pageObject) throws Exception;
+	
+	public List<OrderVO> perList(PageObject pageObject, String id) throws Exception;
+	
+	public OrderVO view(long no) throws Exception;
+	
+	public int write(OrderVO vo) throws Exception;
+	
+	public int writeDetail(OrderVO vo) throws Exception;
+	
+	public int update(OrderVO vo) throws Exception;
+	
+	public int delete(OrderVO vo) throws Exception;
+	
+	public int optionAdd(OrderVO vo) throws Exception;
+	
+	public OrderVO optionView(OrderVO vo) throws Exception;
+	
+	public OrderVO opDetailView(OrderVO vo) throws Exception;
+	
+	public long findOrderNo(String id) throws Exception;
+	
+	public List<OrderVO> cartList(List<Long> noList) throws Exception;
+	
+	public List<OrderVO> mmList(List<Long> noList) throws Exception;
+	
+	public int cartDelete(List<Long> noList) throws Exception;
+}

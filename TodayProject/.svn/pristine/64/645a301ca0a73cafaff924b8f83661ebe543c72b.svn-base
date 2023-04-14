@@ -1,0 +1,5 @@
+package com.today.mymenu.dao;
+
+public interface MyMenuDAO {
+
+}

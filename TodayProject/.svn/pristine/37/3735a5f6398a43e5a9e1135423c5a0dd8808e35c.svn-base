@@ -1,0 +1,120 @@
+package com.today.main;
+
+import java.util.HashMap;
+import java.util.Map;
+
+import com.today.cart.controller.CartController;
+import com.today.cart.dao.CartDAOImpl;
+import com.today.cart.service.CartListServiceImpl;
+import com.today.goods.controller.GoodsController;
+import com.today.goods.dao.GoodsDAOImpl;
+import com.today.goods.service.GoodsListServiceImpl;
+import com.today.goods.service.GoodsViewServiceImpl;
+import com.today.member.controller.MemberController;
+import com.today.member.dao.MemberDAOImpl;
+import com.today.member.service.MemberListServiceImpl;
+import com.today.member.service.MemberLoginServiceImpl;
+import com.today.member.service.MemberWriteServiceImpl;
+import com.today.mymenu.controller.MyMenuController;
+import com.today.mymenu.dao.MyMenuDAOImpl;
+import com.today.mymenu.service.MyMenuListServiceImpl;
+
+public class Init {
+	// controller 저장변수 선언
+	private static Map<String, Object> controllerMap = new HashMap<>();
+	private static Map<String, ServiceInterface> serviceMap = new HashMap<>();
+	private static Map<String, Object> daoMap = new HashMap<>();
+	
+	public static void init() {
+		// controller 생성
+//		controllerMap.put("noticeController", new NoticeController());
+		controllerMap.put("memberController", new MemberController());
+		controllerMap.put("cartController", new CartController());
+		controllerMap.put("mymenuController", new MyMenuController());
+		controllerMap.put("goodsController", new GoodsController());
+//		
+//		// dao 생성
+//		daoMap.put("noticeDAO", new NoticeDAOImpl());
+		daoMap.put("memberDAO", new MemberDAOImpl());
+		daoMap.put("cartDAO", new CartDAOImpl());
+		daoMap.put("mymenuDAO", new MyMenuDAOImpl());
+		daoMap.put("goodsDAO", new GoodsDAOImpl());
+
+//		
+//		// Service 생성 - list, view, write, update, delete ...
+//		// 공지사항
+//		serviceMap.put("noticeListServiceImpl", new NoticeListServiceImpl());
+//		serviceMap.put("noticeViewServiceImpl", new NoticeViewServiceImpl());
+//		serviceMap.put("noticeWriteServiceImpl", new NoticeWriteServiceImpl());
+//		serviceMap.put("noticeUpdateServiceImpl", new NoticeUpdateServiceImpl());
+//		serviceMap.put("noticeDeleteServiceImpl", new NoticeDeleteServiceImpl());
+
+//		// 회원관리 서비스 생성
+		serviceMap.put("memberLoginServiceImpl", new MemberLoginServiceImpl());
+		serviceMap.put("memberWriteServiceImpl", new MemberWriteServiceImpl());
+		serviceMap.put("memberListServiceImpl", new MemberListServiceImpl());
+
+		// 장바구니 서비스 생성
+		serviceMap.put("cartListServiceImpl", new CartListServiceImpl());
+		
+		// 나만의 메뉴 서비스 생성
+		serviceMap.put("mymenuListServiceImpl", new MyMenuListServiceImpl());
+
+		//상품관리 서비스 생성
+		serviceMap.put("goodsListServiceImpl", new GoodsListServiceImpl());
+		serviceMap.put("goodsViewServiceImpl", new GoodsViewServiceImpl());
+		
+		
+//		//dao -> service : 조립
+//		// 공지사항
+//		serviceMap.get("noticeListServiceImpl").setDao(daoMap.get("noticeDAO"));
+//		serviceMap.get("noticeViewServiceImpl").setDao(daoMap.get("noticeDAO"));
+//		serviceMap.get("noticeWriteServiceImpl").setDao(daoMap.get("noticeDAO"));
+//		serviceMap.get("noticeUpdateServiceImpl").setDao(daoMap.get("noticeDAO"));
+//		serviceMap.get("noticeDeleteServiceImpl").setDao(daoMap.get("noticeDAO"));	
+//		
+//		// 회원관리 조립
+		serviceMap.get("memberLoginServiceImpl").setDao(daoMap.get("memberDAO"));
+		serviceMap.get("memberWriteServiceImpl").setDao(daoMap.get("memberDAO"));
+		serviceMap.get("memberListServiceImpl").setDao(daoMap.get("memberDAO"));
+//		
+		// 장바구니 조립
+		serviceMap.get("cartListServiceImpl").setDao(daoMap.get("cartDAO"));
+		
+		// 나만의 메뉴 조립
+		serviceMap.get("mymenuListServiceImpl").setDao(daoMap.get("mymenuDAO"));
+		
+		// 상품관리 조립
+		serviceMap.get("goodsListServiceImpl").setDao(daoMap.get("goodsDAO"));
+		serviceMap.get("goodsViewServiceImpl").setDao(daoMap.get("goodsDAO"));
+		
+		
+//		// service -> controller : 조립
+//		// 공지사항
+//		((NoticeController)(controllerMap.get("noticeController"))).setNoticeListService(serviceMap.get("noticeListServiceImpl"));
+//		((NoticeController)(controllerMap.get("noticeController"))).setNoticeViewService(serviceMap.get("noticeViewServiceImpl"));
+//		((NoticeController)(controllerMap.get("noticeController"))).setNoticeWriteService(serviceMap.get("noticeWriteServiceImpl"));
+//		((NoticeController)(controllerMap.get("noticeController"))).setNoticeUpdateService(serviceMap.get("noticeUpdateServiceImpl"));
+//		((NoticeController)(controllerMap.get("noticeController"))).setNoticeDeleteService(serviceMap.get("noticeDeleteServiceImpl"));		
+//		
+//		// 회원관리
+		((MemberController)(controllerMap.get("memberController"))).setMemberLoginService(serviceMap.get("memberLoginServiceImpl"));
+		((MemberController)(controllerMap.get("memberController"))).setMemberWriteService(serviceMap.get("memberWriteServiceImpl"));
+		((MemberController)(controllerMap.get("memberController"))).setMemberListService(serviceMap.get("memberListServiceImpl"));
+
+		// 장바구니
+		((CartController)(controllerMap.get("cartController"))).setCartListService(serviceMap.get("cartListServiceImpl"));
+		
+		// 나만의 메뉴
+		((MyMenuController)(controllerMap.get("mymenuController"))).setMyMenuListService(serviceMap.get("mymenuListServiceImpl"));
+		
+		//상품관리
+		((GoodsController)(controllerMap.get("goodsController"))).setGoodsListService(serviceMap.get("goodsListServiceImpl"));
+		((GoodsController)(controllerMap.get("goodsController"))).setGoodsViewService(serviceMap.get("goodsViewServiceImpl"));
+	}
+	
+	// controller 꺼내가기 - 변수가 private이라서 직접 사용 할 수 없고 getter를 이용해서 꺼내간다.
+	public static Object getController(String key) {
+		return controllerMap.get(key);
+	}
+}

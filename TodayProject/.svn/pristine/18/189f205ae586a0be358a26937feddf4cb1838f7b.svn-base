@@ -1,0 +1,34 @@
+package com.today.member.controller;
+
+import java.sql.Date;
+import java.util.Calendar;
+
+import com.today.main.Execute;
+import com.today.main.ServiceInterface;
+
+public class MemberSleepThread  implements Runnable {
+//		new Thread(new MemberSleepThread()).start();
+
+	private ServiceInterface memberSleepService;
+
+	public void setMemberSleepService(ServiceInterface memberSleepService) {
+		this.memberSleepService = memberSleepService;
+	}
+	
+	@Override
+	public void run() {
+		while (true) {
+			try {
+				System.out.println("스레드실행");
+				Calendar cal = Calendar.getInstance();
+				cal.add(Calendar.MONTH, -3);
+				Date date = new Date(cal.getTimeInMillis());
+				Execute.run(memberSleepService, date);
+				Thread.sleep(1000 * 60 * 5);
+			} catch (Exception e) {
+				e.printStackTrace();
+				
+			}
+		}
+	}
+}

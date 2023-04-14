@@ -1,0 +1,40 @@
+package com.today.member.controller;
+
+import javax.servlet.http.HttpServletRequest;
+
+import com.today.main.ServiceInterface;
+
+public class MemberController {
+
+	// private으로 서비스 생성
+	private ServiceInterface memberLoginService;
+
+	// setter
+	public void setMemberLoginService(ServiceInterface memberLoginService) {
+		this.memberLoginService = memberLoginService;
+	}
+	
+	// 실행 메서드 - return되는 String 데이터는 jsp또는 url정보가 된다.
+	public String execute(HttpServletRequest request) throws Exception{
+		
+		System.out.println("MemberController.execute().request : " + request);
+		// 어떤 요청
+		String uri = request.getRequestURI();
+		String method = request.getMethod();
+		System.out.println("MemberController.execute().method : " + method);
+		String jsp = null;
+		// 처리
+		switch (uri) {
+		case "/member/login.do":
+			
+			break;
+
+		default:
+			break;
+		}
+		return jsp;
+		
+	}
+	
+	
+}

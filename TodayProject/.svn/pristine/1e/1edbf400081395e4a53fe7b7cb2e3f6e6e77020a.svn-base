@@ -1,0 +1,5 @@
+package com.today.cart.dao;
+
+public interface CartDAO {
+
+}

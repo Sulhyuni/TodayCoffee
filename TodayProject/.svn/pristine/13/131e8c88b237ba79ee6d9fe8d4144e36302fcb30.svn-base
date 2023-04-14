@@ -1,0 +1,123 @@
+package com.today.comm.filter;
+
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
+
+import javax.servlet.Filter;
+import javax.servlet.FilterChain;
+import javax.servlet.FilterConfig;
+import javax.servlet.ServletException;
+import javax.servlet.ServletRequest;
+import javax.servlet.ServletResponse;
+// import javax.servlet.annotation.WebFilter;
+import javax.servlet.http.HttpFilter;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
+import com.today.member.vo.MemberVO;
+
+/**
+ * Servlet Filter implementation class AuthorityFilter
+ */
+// @WebFilter("/AuthorityFilter")
+public class AuthorityFilter extends HttpFilter implements Filter {
+	
+	private static final long serialVersionUID = 1L;
+	
+	// 권한처리 데이터가 저장되어있는 Map
+	private Map<String, Integer> authMap = new HashMap<>();
+       
+    /**
+     * @see HttpFilter#HttpFilter()
+     */
+    public AuthorityFilter() {
+        super();
+        System.out.println("AuthorityFilter의 생성자 실행");
+    }
+
+	/**
+	 * @see Filter#destroy()
+	 */
+	public void destroy() {
+		
+	}
+
+	/**
+	 * @see Filter#doFilter(ServletRequest, ServletResponse, FilterChain)
+	 */
+	public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
+		System.out.println("AuthorityFilter.doFilter() - 처리 전 권한 처리");
+		
+		// Servlet의 request와 response의 타입이 다르다. Http가 안붙어있음.
+		// HttpServletRequest는 ServletRequest를 상속 받음.
+		// 넘어오는 타입이 HttpServletRequest라서 casting해서 사용해야 한다.
+		HttpServletRequest req = (HttpServletRequest) request;
+		HttpServletResponse res = (HttpServletResponse) response;
+		
+		String uri = req.getRequestURI();
+		System.out.println("AuthorityFilter.doFilter().uri : " + uri); // 내가 원하는 정보인지 출력 해 봐야 한다.
+		
+		Integer pageGradeNo = authMap.get(uri);
+		
+		// authMap 안에 uri 데이터가 있는지 확인
+		if(pageGradeNo != null) {
+			HttpSession session = req.getSession();
+			MemberVO vo = (MemberVO) session.getAttribute("login");
+			// 로그인이 된 경우 관리자 권한인지 구분하는 처리
+			// 페이지는 관리자 권한 페이지 이지만 등급이 관리자가 아닌 경우
+			if(pageGradeNo == 9) {
+				if(vo == null || vo.getGradeNo() != 9) {
+					res.sendRedirect("/error/authError.do");
+					return;	
+				}
+			}
+			// 로그인 확인 - 없으면(null이면) 문제가 됨
+			if(vo == null) {
+				// 오류 처리 - 로그인 에러 페이지 이동
+				res.sendRedirect("/error/loginError.do");
+				return;
+			}
+		}
+		
+		chain.doFilter(request, response);
+		System.out.println("AuthorityFilter.doFilter() - 처리 후 권한 처리");
+	}
+
+	/**
+	 * @see Filter#init(FilterConfig)
+	 */
+	public void init(FilterConfig fConfig) throws ServletException {
+		System.out.println("AuthorityFilter.init() 실행 - 권한에 대한 정보 저장");
+		// 공지 게시판 권한
+		
+		// 이벤트 게시판 권한
+		
+		// 회원관리 권한
+		
+		// 장바구니 권한
+		authMap.put("/cart/list.do", 1);
+		authMap.put("/cart/view.do", 1);
+		authMap.put("/cart/add.do", 1);
+		authMap.put("/cart/update.do", 1);
+		authMap.put("/cart/delete.do", 1);
+		authMap.put("/cart/alldelete.do", 1);
+		authMap.put("/mymenu/list.do", 1);
+		authMap.put("/mymenu/view.do", 1);
+		authMap.put("/mymenu/add.do", 1);
+		authMap.put("/mymenu/update.do", 1);
+		authMap.put("/mymenu/delete.do", 1);
+		authMap.put("/mymenu/alldelete.do", 1);
+		
+		// 나만의메뉴 권한
+		
+		// 주문관리 권한
+		authMap.put("/order/list.do", 1);
+		authMap.put("/order/view.do", 1);
+		authMap.put("/order/opAdd.do", 1);
+		authMap.put("/order/pay.do", 1);
+		authMap.put("/order/update.do", 9);
+
+	}
+
+}

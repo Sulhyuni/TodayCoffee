@@ -1,0 +1,128 @@
+package com.today.cart.dao;
+
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.util.ArrayList;
+import java.util.List;
+
+import com.today.cart.vo.CartVO;
+import com.today.io.db.DB;
+
+public class CartDAOImpl implements CartDAO{
+
+	private Connection con = null;
+	private PreparedStatement pstmt = null;
+	private ResultSet rs = null;
+	
+	@Override
+	public List<CartVO> list() throws Exception {
+		System.out.println("CartDAOImpl.list()");
+		List<CartVO>list = null;
+		try {
+			// 1. 확인 2. 연결
+			con = DB.getConnection();
+			// 3. sql
+//			String sql = "select c.cartNo, g.Name_kr, g.goodsView, c.quantity "
+//					+ " , g.goodsNo, g.div, g.price, g.fileName, go.cup_size, go.cup, go.syrup "
+//					+ " form cart c, goods g , goods_option go, member m "
+//					+ " where c.id = m.id and c.goodsNo = g.goodsNo and c.optionNo = go.optionNo "
+//					+ " order by cartNo desc";
+			String sql = " select c.cartNo, g.Name_kr, g.Goodsview, c.quantity, g.goodsNo, g.goodsDiv, g.price "
+					+ " , g.fileName, go.cup_size, go.cup, go.syrup "
+					+ " from cart c,goods g, goods_option go , member m "
+					+ " where c.id = m.id and c.goodsNo = g.goodsNo and c.optionNo = go.optionNo"
+					+ " order by cartNo desc ";
+			System.out.println("sql"+sql);
+			// 4. 실행객체
+			pstmt = con.prepareStatement(sql);
+//			pstmt.setString(1, id);
+			System.out.println("4.실행객체");
+			// 5. 실행
+			rs = pstmt.executeQuery();
+			System.out.println("5.실행");
+			// 6. 데이터 저장
+			if(rs != null) {
+				while(rs.next()) {
+					if(list == null)list = new ArrayList<>();
+					CartVO vo = new CartVO();
+					vo.setCartNo(rs.getLong("cartNo"));
+					vo.setName_kr(rs.getString("name_kr"));
+					vo.setGoodsview(rs.getString("goodsview"));
+					vo.setQuantity(rs.getLong("quantity"));
+					vo.setGoodsNo(rs.getLong("goodsNo"));
+					vo.setGoodsDiv(rs.getString("goodsDiv"));
+					vo.setPrice(rs.getString("price"));
+					vo.setFileName(rs.getString("fileName"));
+					vo.setCup_size(rs.getString("cup_size"));
+					vo.setCup(rs.getString("cup"));
+					vo.setSyrup(rs.getString("syrup"));
+					// vo를 list에 담기
+					list.add(vo);
+					System.out.println("6.데이터 저장");
+				}// end of while()
+			}// end of if()
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw new Exception("장바구니 리스트 DB 처리 중 오류 발생");
+		}finally {
+			// 7. 닫기
+			DB.close(con, pstmt, rs);
+			System.out.println("7.닫기");
+		}// end of t c f
+		return list;
+	}// end of list()
+
+	// 담기
+	public int cartAdd(CartVO vo)throws Exception{
+		int result = 0;
+		try {
+			// 담겨있는 상품은 담기지 않게하기
+			// 1. 확인 2. 연결
+			con = DB.getConnection();
+			// 3. sql
+			String sql1 = " select cartNo from cart "
+					+ " where goodsNo = ? and id = ? ";
+			// 4. 실행객체
+			pstmt = con.prepareStatement(sql1);
+			pstmt.setLong(1, vo.getGoodsNo());
+			pstmt.setString(2, vo.getId());
+			// 5. 실행
+			rs = pstmt.executeQuery();
+			// 6. 데이터 저장
+			if(rs.next()) {
+				System.out.println("기존에 있는 상품입니다.");
+				System.out.println("상품을 추가 하실예정이면 장바구니 리스트에서 수량을 조절해주세요. ");
+			}else {
+				// 담기
+				// 연결
+				con = DB.getConnection();
+				// sql
+				String sql = " insert into cart(cartNo, goodsNo,optionNo,quantity,id "
+								+ " values(cart_seq.nextval, ?, ? ,?) ";
+				// 실행객체
+				pstmt = con.prepareStatement(sql);
+				pstmt.setLong(1, vo.getGoodsNo());
+				pstmt.setLong(2, vo.getOptionNo());
+				pstmt.setLong(3, vo.getQuantity());
+				pstmt.setString(4, vo.getId());
+				result = pstmt.executeUpdate(); 
+			}// end of if
+		} catch (Exception e) {
+			e.printStackTrace();
+			// TODO: handle exception
+		}finally {
+			// 7. 닫기
+			DB.close(con, pstmt,rs);
+		}// end of t c f
+		
+		return result;
+	}// end of cartAdd()
+	
+	// 수량 수정
+	
+	// 선택 삭제
+	
+	// 전체 삭제
+	
+}// end of cartDAOImpl class()

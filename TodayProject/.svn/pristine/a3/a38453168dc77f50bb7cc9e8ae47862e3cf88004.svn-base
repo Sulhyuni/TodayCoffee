@@ -1,0 +1,69 @@
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+	pageEncoding="UTF-8"%>
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>상품관리</title>
+<!-- 라이브러리 등록  : CDN 방식 -->
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<script type="text/javascript">
+$(function() {
+	$("#deleteBtn").click(function() {
+		if(!confirm("정말 삭제하시겠습니까?")) return false;
+	});
+});
+</script>
+
+</head>
+<body>
+	<div class="container">
+		<div class="col-md-12">
+			<a href="list.do">
+				<button style="float: right; margin-bottom: 10px;">리스트</button>
+			</a> 
+			<a href="update.do?no=${vo.goodsNo}">
+				<button style="float: right; margin-bottom: 10px;">상품수정</button>
+			</a> 
+			<a href="delete.do?no=${vo.goodsNo}">
+				<button style="float: right; margin-bottom: 10px;" id = "deleteBtn">상품삭제</button>
+			</a>
+			<h2>상세보기</h2>
+		</div>
+		<div class="col-md-12">
+			<hr>
+		</div>
+
+		<div class="row">
+			<div class="col-md-5">
+				<img src="${vo.fileName }" class="img-thubnail" />
+			</div>
+			<div class="col-md-7">${vo.name_kr}
+				<br> 
+			<span>${vo.name_en }</span>
+			
+				<div>
+					<hr>
+				</div>
+					
+					<div class="row">
+						<label class="col-md-12">${vo.goodsView }</label>
+					 
+					 
+					</div>
+					<br>
+					<div class="row">
+						<label class="col-md-2">분류</label>
+						<div class="col-md-10">${vo.goodsDiv }</div>
+					</div>
+					<div class="row">
+						<label class="col-md-2">상품가격</label>
+						<div class="col-md-10">${vo.price }원</div>
+					</div>
+				</div>
+		</div>
+	</div>
+
+</body>
+</html>

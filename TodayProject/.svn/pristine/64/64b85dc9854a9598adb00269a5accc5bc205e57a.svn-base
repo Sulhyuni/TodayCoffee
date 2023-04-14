@@ -1,0 +1,49 @@
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"%>
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>상품관리</title>
+<!-- 라이브러리 등록  : CDN 방식 -->
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+</head>
+<body>
+	<div>
+		<h1>상세보기</h1>
+		<div class = "panel panel-default">
+			<div class="panel-heading">${vo.name_kr}
+			<br>
+			<span>${vo.name_en }</span>
+			</div>
+		
+			<div class="panel-body">
+			<div class = "row" type="hidden" >
+				<label class = "col-md-2" >번호</label>
+				<div class="col-md-10">${vo.goodsNo }</div>
+			</div>
+			
+			<div class = "row">
+				<label class ="col-md-2">이미지</label>
+				<div class="col-md-10">
+				<img src="${vo.fileName }" class = "img-thubnail"/></div>
+			</div>
+			
+			<div class = "row">
+				<label class = "col-md-2">상품가격</label>
+				<div class="col-md-10">${vo.price }</div>
+			</div>
+			<div class = "row">
+				<label class = "col-md-2">분류</label> 
+			<div class="col-md-10">${vo.goodsDiv }</div> 
+			</div> 
+			<div class = "row">
+				<label class = "col-md-2">번호</label>
+				<div class="col-md-10">${vo.goodsNo }</div>
+			</div>
+		</div>
+	</div>
+</div>
+</body>
+</html>

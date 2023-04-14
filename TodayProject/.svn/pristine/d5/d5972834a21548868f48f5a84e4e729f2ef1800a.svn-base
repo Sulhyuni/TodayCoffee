@@ -1,0 +1,177 @@
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"%>
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Today:회원가입</title>
+<!-- 라이브러리 등록 : CDN방식 -->
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<script type="text/javascript" src="/js/regEX.js"></script>
+
+<style type="text/css">
+	th{
+		width: 200px;
+	}
+	
+</style>
+
+<script type="text/javascript">
+	$(function(){
+		$("#writeForm").submit(function(){
+			//아이디
+			if(!checkData(reg_id, $("#id"), reg_id_error_msg, 1)) return false;
+			//비밀번호
+			if(!checkData(reg_pw, $("#pw"), reg_pw_error_msg, 1)) {
+				$("#pw").val("");
+				return false;
+			}
+			//비밀번호확인
+			if(!checkData(reg_pw, $("#pw2"), reg_pw_error_msg, 1)) {
+				$("#pw2").val("");
+				return false;
+			}
+			//이름
+			if(!checkData(reg_name, $("#name"), reg_name_error_msg, 1)) return false;
+			//성별
+			if(!checkData(reg_gender, $("#gender"), reg_gender_error_msg, 1)) return false;
+			//생년월일
+			if(!checkData(reg_birth, $("#birth"), reg_birth_error_msg, 1)) return false;
+			//연락처
+			if(!checkData(reg_tel, $("#tel"), reg_tel_error_msg, 1)) return false;
+			//이메일
+			if(!checkData(reg_email, $("#email"), reg_email_error_msg, 1)) return false;
+			//비밀번호확인체크
+			if($("#pw").val() != $("#pw2").val()){
+				alert("비밀번호와 비밀번호확인이 다릅니다. 다시 입력해주세요");
+				$("#pw","#pw2").val("");
+				$("#pw").focus();
+				return false;
+			};
+			//아이디 중복체크
+		});
+		$("#idCheckBtn").click(function(){
+			alert(${vo.id})
+			if($("#id").val() != ${vo.id}){
+				alert("사용가능한 아이디 입니다.")
+			}else alert("중복된 아이디 입니다.")
+		});
+	});
+</script>
+	
+</head>
+<body>
+<div class = "container" >
+	<h1>회원가입</h1>
+	<div class="row">
+	<form action="write.do" method="post" id="writeForm">
+	<!-- table -> caption,thead,tbody,tfooter -> tr -> th,td -> data -->
+	<table class="table" style="box-sizing: content-box">
+		<tbody>
+			<tr class="dataRow">
+				<th>아이디</th>
+				<td>
+					<!-- placeholder - 데이터가 비어있는경우 배경글자
+					required - 필수입력. pattern - 정규표현식. 데이터 유효성검사 
+					autocomplete : 자동완성. on/off. 
+					maxlength : 최대 입력 개수
+					title : 풍선 도움말. input tag의 패턴과 같이쓰면 데이터가 유효하지
+							않을 때 나타나는 메시지로 사용된다. -->
+					
+					<input name="id" id="id" placeholder="아이디 입력"
+					required="required" title="영숫자_ 4자~20자 사이. 영문자로 시작">
+					<button id="idCheckBtn" class="btn btn-default">중복확인</button>
+				</td>
+			</tr>
+			<tr>
+				<th>비밀번호</th>
+				<td>
+					<input name="pw" id="pw" type="password"
+					placeholder="비밀번호 입력" required="required" 
+					title="4자~20자 사이.">
+				</td>
+			</tr>
+			<tr>
+				<th>비밀번호 확인</th>
+				<td>
+					<input id="pw2" type="password"
+					placeholder="비밀번호 확인 입력" 
+					required="required" title="4자~20자 사이.">
+				</td>
+			</tr>
+			<tr>
+				<th >이름</th>
+				<td>
+					<input name="name" id="name" type="text"
+					placeholder="이름 입력" 
+					required="required" title="2자~10자 사이. 한글만 가능.">
+				</td>
+			</tr>
+			<tr>
+				<th >성별</th>
+				<td>
+				<!-- type = "radio"  : 같은 이름의 input태그가 여러개.한개만 선택가능.  -->
+					<input name="gender" type="radio" value="남자" 
+					style="width:50px" checked="checked"> 남자 
+					<input name="gender" type="radio" value="여자"  
+					style="width:50px"> 여자
+				</td>
+			</tr>
+			<tr>
+				<th >생년월일</th>
+				<td>
+					<input name="birth" id="birth"
+					placeholder="yyyy-mm-dd"
+					required="required" 
+					title="생년월일은 yyyymmdd 연속된 숫자 8자를 사용하셔야 합니다.">
+				</td>
+			</tr>
+			<tr>
+				<th >연락처</th>
+				<td>
+<!-- 				name="tel"이 3개가있다. 배열로 받는다. -->
+<!-- 				request.getParameterValues("tel") -->
+					<select name="tel1" id="tel1" style="height: 2.1em">
+						<option>010</option>
+						<option>02</option>
+						<option>031</option>
+						<option>032</option>
+						<option>033</option>
+						<option>041</option>
+						<option>042</option>
+						<option>043</option>
+					</select> -
+					<input name="tel2" id="tel2"
+					style="width:50px"> -
+					<input name="tel3" id="tel3"
+					style="width:50px">
+				</td>
+			</tr>
+			<tr>
+				<th >이메일</th>
+				<td>
+					<input name="email" id="email"
+					placeholder="아이디@도메인"
+					required="required" 
+					title="아이디@그룹.그룹[.국가]">
+				</td>
+			</tr>
+		</tbody>
+		<tfoot>
+			<tr>
+				<td colspan="2">
+					<button style="width: 160px">가입</button>
+					<button type="reset" style="width: 160px">새로입력</button>
+					<button style="width: 160px" type="button" onclick="location='/'">취소</button>
+<!-- 					<button type="button" onclick="history.go(-2)">취소</button> -->
+				</td>
+			</tr>
+		</tfoot>
+	</table>
+	</form>
+	</div>
+</div>
+</body>
+</html>

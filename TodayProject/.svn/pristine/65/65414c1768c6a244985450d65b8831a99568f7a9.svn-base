@@ -1,0 +1,14 @@
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"%>
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Insert title here</title>
+</head>
+<body>
+<h2>주문완료창</h2>
+주문이 완료 되었습니다. 기다려주세요<br/>
+주문번호, 주문상태, 안내문구
+</body>
+</html>

@@ -1,0 +1,103 @@
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"%>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>pay</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.1/jquery.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+<script type="text/javascript">
+$(function(){
+		
+	var totalPrice = 0; // 1. totalPrice 변수를 초기값 0으로 설정
+
+	  // 2. forEach문에서 vo.orderPrice 값을 더해 totalPrice 변수에 누적
+	  $('div[id=orderPrice]').each(function() {
+	    var orderPrice = parseInt($(this).text().replace(/\D/g,'')); // 문자열에서 숫자만 추출
+	    totalPrice += orderPrice;
+	  });
+
+	  $('#totalPrice').val(totalPrice); // 총 주문금액을 표시
+
+	  // 3. usePoint 값이 들어왔을 때, totalPrice 변수에서 usePoint 값을 뺀 금액을 payPrice 변수에 할당
+	  $('#usePoint').on('input', function() {
+	    var usePoint = parseInt($(this).val());
+	    var point = parseInt($('#point').val());
+	    if (isNaN(usePoint)) usePoint = 0; // 값이 제대로 입력되지 않은 경우, 0으로 설정
+	    if (usePoint > point) {
+	        alert('사용가능한 포인트를 초과할 수 없습니다.');
+	        $(this).val(totalPrice); // usePoint 값을 totalPrice 값으로 설정
+		    usePoint = totalPrice;
+	    } else if (usePoint > totalPrice) {
+	    	alert('사용할 포인트가 총 주문금액보다 큽니다.');
+		    $(this).val(totalPrice); // usePoint 값을 totalPrice 값으로 설정
+		    usePoint = totalPrice;
+	    } else {
+	    	var payPrice = totalPrice - usePoint;
+	 	    $('#payPrice').val(payPrice);
+	    }
+	    var payPrice = totalPrice - usePoint;
+	    $('#payPrice').val(payPrice);
+	  });
+
+});
+
+</script>
+</head>
+<body>
+<div class="container">
+	<h2>주문메뉴</h2>
+	<hr/>
+	<form method="post" id="payForm">
+		<c:forEach items="${list }" var="vo">
+			<div>상품번호 : ${vo.goodsNo } / 장바구니번호 : ${vo.cartNo } / 옵션번호 : ${vo.optionNo }</div>
+			<div>상품이름 : ${vo.goodsName }</div>
+			<div>상품분류 : ${vo.goodsDiv }</div>
+			<div>옵션넘버 : ${vo.optionNo }</div>
+			<c:if test="${vo.goodsDiv ne 'food' }">
+				<div>컵사이즈 : ${vo.cupSize }</div>
+				<div>컵종류 : ${vo.cup }</div>
+				<div>시럽 : ${vo.syrup }</div>
+			</c:if>
+			<c:if test="${vo.goodsDiv eq 'food' }">
+				<div>데움 : ${vo.heating }</div>
+			</c:if>
+			<div>상품수량 : ${vo.quantity }</div>
+			<div id="orderPrice">옵션적용된상품금액 : ${vo.orderPrice }</div>
+			<hr/>
+		</c:forEach>
+		
+		<div class="form-group">
+	        <label for="totalPrice">총 주문금액:</label>
+	        <input id="totalPrice" name="totalPrice" value="" readonly>
+    	</div>
+    	<div class="form-group">
+	        <label for="usePoint">사용할 포인트 : </label>
+	        <input id="usePoint" name="usePoint" value="">
+    	</div>
+    	<div class="form-group">
+	        <label for="point">사용가능한 포인트 : </label>
+	        <input id="point" name="point" value="50000">
+    	</div>
+
+		<div class="form-group">
+	        <label for="payPrice">결제하실 금액:</label>
+	        <input id="payPrice" name="payPrice" value="" readonly>
+    	</div>
+    	
+		<div class="form-group">
+			<label for="payMethod">결제수단</label>
+			<select class="form-control" id="payMethod" name="payMethod">
+				<option selected="selected">신용카드</option>
+				<option>투데이카드</option>
+			</select>
+		</div>
+		<button type="submit" formaction="pay.do">주문하기</button>
+	</form>
+
+</div>
+</body>
+</html>

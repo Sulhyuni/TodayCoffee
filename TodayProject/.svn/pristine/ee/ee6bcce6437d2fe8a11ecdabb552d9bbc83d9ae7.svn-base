@@ -1,0 +1,28 @@
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"%>
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>pay</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.1/jquery.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+</head>
+<body>
+<div class="container">
+
+
+<div>상품넘버 : ${vo.goodsNo }</div>
+<div>상품이름 : ${vo.goodsName }</div>
+<div>옵션넘버 : ${vo.optionNo }</div>
+<div>컵사이즈 : ${vo.cupSize }</div>
+<div>컵종류 : ${vo.cup }</div>
+<div>시럽 : ${vo.syrup }</div>
+<div>데움 : ${vo.heating }</div>
+<div>상품수량 : ${vo.quantity }</div>
+<div>상품가격 : ${vo.totalPrice }</div>
+
+</div>
+</body>
+</html>

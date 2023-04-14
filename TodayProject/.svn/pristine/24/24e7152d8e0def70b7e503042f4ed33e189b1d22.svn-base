@@ -1,0 +1,44 @@
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"%>
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>응모 현황</title>
+</head>
+<body>
+<div class="container">
+
+<!-- 로그인 회원 본인일 경우 - 응모한 이벤트 리스트  -->
+<table class = "table">
+		<tbody >
+			<tr>
+				<th>번호</th>
+				<td>${vo.eventNo }</td>
+			</tr>
+			<tr>
+				<th>제목</th>
+				<td>${vo.title }</td>
+			</tr>
+			<tr>
+				<th>내용</th>
+				<td style="height:5em;">${vo.content }</td>
+			</tr>
+			<tr>
+				<th>시작일</th>
+				<td>${vo.startDate}</td>
+			</tr>
+			<tr>
+				<th>종료일</th>
+				<td>${vo.endDate}</td>
+			</tr>
+			<tr>
+				<th>당첨여부</th>
+				<td>${vo.win }</td>
+			</tr>
+		</tbody>
+	</table>
+	
+</div>
+</body>
+</html>

@@ -1,0 +1,633 @@
+package com.today.event.dao;
+
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
+
+import com.today.io.db.DB;
+import com.today.event.vo.EventVO;
+import com.webjjang.util.PageObject;
+
+public class EventDAOImpl implements EventDAO {
+	
+	private Connection con = null;
+	private PreparedStatement pstmt = null;
+	private ResultSet rs = null;
+
+	
+	@Override
+	public List<EventVO> list(PageObject pageObject) throws Exception {
+
+		System.out.println("EventDAOImpl.list()");
+		// 결과를 전달 변수 List<EventVO>
+		List<EventVO> list = null;
+		try {
+			// 1. 확인 2. 연결
+			con = DB.getConnection();
+			// 3. sql
+			//   3-1. 원본 데이터 가져오기
+			String sql = "select eventNo, title, "
+					+ " to_char(startDate, 'yyyy-mm-dd') startDate,  "
+					+ " to_char(endDate, 'yyyy-mm-dd') endDate,  "
+					+ " to_char(updateDate, 'yyyy-mm-dd') updateDate, "
+					+ " hit  "
+					+ " from event";
+			
+			//검색조건처리
+			sql += searchSQL(pageObject);
+			
+			sql += " order by eventNo desc";
+			//   3-2. 순서 번호 붙이기
+			sql = " select rownum rnum, eventNo, title, startDate, endDate, updateDate, hit  "
+				+ " from (" + sql + ")";
+			//   3-3. 페이지 데이터 조건문
+			sql = " select eventNo, title, startDate, endDate, updateDate, hit "
+					+ " from (" + sql + ") where rnum between ? and ? ";
+			
+			System.out.println("EventDAOImpl.list().sql : " + sql);
+			
+			// 4. 실행객체 & 데이터 세팅
+			pstmt = con.prepareStatement(sql);
+			//검색에 대한 데이터 세팅
+			int idx=0;
+			idx = searchDataSet(pageObject, idx);
+			pstmt.setLong(++idx, pageObject.getStartRow());
+			pstmt.setLong(++idx, pageObject.getEndRow());
+			// 5. 실행 -> rs
+			rs = pstmt.executeQuery();
+			// 6. 데이터 저장 - list
+			// rs가 null 이 아니면 처리하자
+			//6.데이터 저장(list변수에 저장) 
+			if(rs!=null) {
+				while(rs.next()) {
+					//데이터가 있다.
+					//rs에 다음 데이터가 있으면 아래로 처리한다.
+					//list가 null 이면 한번만 생성한다. 세미콜론 주의!
+					if(list==null)list = new ArrayList<>();
+					
+					//데이터를 담은 vo 객체를 생성한다.
+					EventVO vo = new EventVO();		
+					vo.setEventNo(rs.getLong("eventNo"));
+					vo.setTitle(rs.getString("title"));
+					vo.setStartDate(rs.getString("startDate"));
+					vo.setEndDate(rs.getString("endDate"));
+					vo.setUpdateDate(rs.getString("updateDate"));
+					vo.setHit(rs.getLong("hit"));
+					//rs데이터를 vo에 담고 -> list에 담는다 ( add )
+					list.add(vo); 
+				}//while의 끝
+			}//if 끝
+			
+
+		} catch (Exception e) {
+			e.printStackTrace(); //개발자 위한 코드
+			throw new Exception("이벤트사항 리스트 처리중오류발생");
+		} finally {
+			//7.닫기
+			 DB.close(con, pstmt, rs);
+		}// try~finally의 끝
+		
+		//데이터가 null이 나올경우 syso로 한번 찍어봐야한다.
+		return list;
+		
+	} //list 메서드 의 끝
+
+	
+	//현재이벤트  startDate <=sysDate
+	// 현재 이벤트 리스트 
+		public List<EventVO> currentList(PageObject pageObject) throws Exception {
+			System.out.println("EventDAOImpl.currentList()...");
+			List<EventVO> list = null;
+			
+			try {
+				// 1 드라이버 확인 2 접속
+				con = DB.getConnection();
+				System.out.println("1. 드라이버 확인 2. 접속");
+				// 3 sql
+				String sql = "select eventNo,title,"
+						+ " to_char(startDate,'yyyy-mm-dd')startDate,"
+						+ " to_char(endDate,'yyyy-mm-dd')endDate," 
+						+ " to_char(updateDate,'yyyy-mm-dd')updateDate, "
+						+ " hit "
+						+ " from event where startDate <= sysdate and trunc(sysdate) <= enddate  "
+						+ " order by updateDate desc";
+				System.out.println("3. sql :" + sql);
+				// 4 실행객체생성 및 데이터 세팅
+				pstmt = con.prepareStatement(sql);
+				System.out.println("4. 실행객체생성");
+				// 5 실행
+				rs = pstmt.executeQuery();
+				System.out.println("5. 실행완료");
+				// 6 표시 및 저장
+				if (rs != null) {
+					while (rs.next()) {
+						if (list == null)
+							list = new ArrayList<EventVO>();
+						EventVO vo = new EventVO();
+						vo.setEventNo(rs.getLong("eventNo"));
+						vo.setTitle(rs.getString("title"));
+						vo.setStartDate(rs.getString("startDate"));
+						vo.setEndDate(rs.getString("endDate"));
+						vo.setUpdateDate(rs.getString("updateDate"));
+						vo.setHit(rs.getLong("hit"));
+						list.add(vo);
+					}
+					return list;
+				}		 
+				System.out.println("6. 담기 성공 ");
+			} catch (Exception e) {
+				e.printStackTrace();
+				throw new Exception("현재이벤트 DB 처리 중 오류가 발생되었습니다");
+			} finally {
+				// 7. 닫기
+				DB.close(con, pstmt, rs);
+				System.out.println("7.객체 닫기 성공");
+			}
+			return list;
+		} 
+
+////예약된 이벤트
+	@Override
+	public List<EventVO> reservedList(PageObject pageObject) throws Exception {
+		System.out.println("EventDAOImpl.reservedList()...");
+	List<EventVO> list = null;
+	
+	try {
+		// 1 드라이버 확인 2 접속
+		con = DB.getConnection();
+		System.out.println("1. 드라이버 확인 2. 접속");
+		// 3 sql
+		String sql = "select eventNo,title, "
+				+ " to_char(startDate,'yyyy-mm-dd')startDate, "
+				+ " to_char(endDate,'yyyy-mm-dd')endDate,"
+				+ " to_char(updateDate,'yyyy-mm-dd')updateDate, "
+				+ " hit  "
+				+ " from event "
+				+ " where startDate > sysDate "
+				+ " order by updateDate desc";
+		System.out.println("3. sql :" + sql);
+		// 4 실행객체생성 및 데이터 세팅
+		pstmt = con.prepareStatement(sql);
+		System.out.println("4. 실행객체생성");
+		// 5 실행
+		rs = pstmt.executeQuery();
+		System.out.println("5. 실행완료");
+		// 6 표시 및 저장
+		if (rs != null) {
+			while (rs.next()) {
+				if (list == null)
+					list = new ArrayList<EventVO>();
+				EventVO vo = new EventVO();
+				vo.setEventNo(rs.getLong("eventNo"));
+				vo.setTitle(rs.getString("title"));
+				vo.setStartDate(rs.getString("startDate"));
+				vo.setEndDate(rs.getString("endDate"));
+				vo.setUpdateDate(rs.getString("updateDate"));
+				vo.setHit(rs.getLong("hit"));
+				
+				list.add(vo);
+			}
+			return list;
+		}		
+		System.out.println("6.객체 담기 성공 ");
+	} catch (Exception e) {
+		e.printStackTrace();
+		throw new Exception("지난이벤트 DB 처리 중 오류가 발생되었습니다");
+		
+	} finally {
+		// 7. 닫기
+		DB.close(con, pstmt, rs);
+		System.out.println("7.객체 닫기 성공");
+		
+	}
+	return list;
+	
+} 
+
+////지난 이벤트
+	@Override
+	public List<EventVO> lastList(PageObject pageObject) throws Exception {
+		System.out.println("EventDAOImpl.lastList()...");
+		List<EventVO> list = null;
+		
+		try {
+			// 1 드라이버 확인 2 접속
+			con = DB.getConnection();
+			System.out.println("1. 드라이버 확인 2. 접속");
+			// 3 sql
+			String sql = "select eventNo,title,to_char(startDate,'yyyy-mm-dd')startDate, "
+					+ " to_char(endDate,'yyyy-mm-dd')endDate," 
+					+ " to_char(updateDate,'yyyy-mm-dd')updateDate, "
+					+ " hit "
+					+ " from event "
+					+ " where endDate + 1 < sysDate  "
+					+ " order by updateDate desc";
+			System.out.println("3. sql :" + sql);
+			// 4 실행객체생성 및 데이터 세팅
+			pstmt = con.prepareStatement(sql);
+			System.out.println("4. 실행객체생성");
+			// 5 실행
+			rs = pstmt.executeQuery();
+			System.out.println("5. 실행완료");
+			// 6 표시 및 저장
+			if (rs != null) {
+				while (rs.next()) {
+					if (list == null)
+						list = new ArrayList<EventVO>();
+					EventVO vo = new EventVO();
+					vo.setEventNo(rs.getLong("eventNo"));
+					vo.setTitle(rs.getString("title"));
+					vo.setStartDate(rs.getString("startDate"));
+					vo.setEndDate(rs.getString("endDate"));
+					vo.setUpdateDate(rs.getString("updateDate"));
+					vo.setHit(rs.getLong("hit"));
+					
+					list.add(vo);
+				}
+				return list;
+			}		// end of if	
+			System.out.println("6.객체 담기 성공 ");
+		} catch (Exception e) {
+			e.printStackTrace();
+		throw new Exception("예약이벤트 DB 처리 중 오류가 발생되었습니다"); 
+		} finally {
+			// 7. 닫기
+			DB.close(con, pstmt, rs);
+			System.out.println("7.객체 닫기 성공");
+			
+		}
+		return list;
+		
+	}// end of currentList()
+	
+	
+	
+
+	//검색을 위한 sql 작성
+	private String searchSQL(PageObject pageObject) {
+		String sql = "";
+		String word = pageObject.getWord();
+		String key = pageObject.getKey();		
+		if(word != null && !word.equals("")) {
+			sql +=" where (1=0 ";
+			if(key.indexOf("t")>=0) sql+=" or title like ?"; 
+			if(key.indexOf("c")>=0) sql+=" or content like ?"; 
+			sql +=")";
+		}
+		return sql;
+	}
+
+	//검색을 위한 데이터 세팅
+	private int searchDataSet(PageObject pageObject, int idx) throws SQLException{
+		String word = pageObject.getWord();
+		String key = pageObject.getKey();	
+		if(word != null && !word.equals("") ) {
+			if(key.indexOf("t")>=0)pstmt.setString(++idx, "%"+word+"%"); 
+			if(key.indexOf("c")>=0)pstmt.setString(++idx, "%"+word+"%"); 
+		}
+		return idx;
+	}
+	
+	
+	@Override
+	public long getTotalRow(PageObject pageObject) throws Exception {
+		System.out.println("EventDAOImpl.getTotlaRow() :" +pageObject);
+		
+		//리턴데이터 선언
+		long totalRow = 0;
+		try {
+			//1,2.드라이버 확인, 연결
+			con = DB.getConnection();
+			System.out.println("1,2.확인,연결");
+			//3.sql
+			String sql = "select count(*) from event";
+			sql += searchSQL(pageObject);
+			System.out.println("3. getTotlaRow : " + sql);
+			//4.실행객체, 데이터 저장
+			pstmt=con.prepareStatement(sql);
+			int idx=0;
+			idx=searchDataSet(pageObject, idx);
+			//5.실행
+			rs=pstmt.executeQuery();
+			System.out.println("5.실행");
+			
+			//6.표시 rs->vo
+			if(rs !=null && rs.next()) {
+				totalRow=rs.getLong(1);
+			}
+			System.out.println("6.표시,저장완료");
+			
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw new Exception("이벤트사항 list의 전체 데이터 개수 DB처리중 에러 발생.");
+		}finally {
+			//7.닫기
+			DB.close(con, pstmt);
+			System.out.println("7.닫기완료");
+		}
+		return totalRow;
+	}//view 메서드의 끝
+	
+	
+	@Override
+	public EventVO view(long no) throws Exception {
+		System.out.println("EventDAOImpl.no() :" +no);
+		
+		//리턴데이터 선언
+		EventVO vo = null;
+		try {
+			//1,2.드라이버 확인, 연결
+			con = DB.getConnection();
+			System.out.println("1,2.확인,연결");
+			//3.sql
+			String sql = "select eventNo, title, content, "
+					+ "to_char(startDate,'yyyy-mm-dd') startDate, "
+					+ "to_char(endDate,'yyyy-mm-dd') endDate, "
+					+ "to_char(updateDate,'yyyy-mm-dd') updateDate, "
+					+ " hit "
+					+ " from event where eventNo = ? ";
+			System.out.println("3. .view.sql : " + sql);
+			//4.실행객체, 데이터 저장
+			pstmt=con.prepareStatement(sql);
+			
+			//첫번째 물음표
+			pstmt.setLong(1, no);
+			System.out.println("4.실행객체, 데이터 저장");
+			
+			//5.실행
+			rs=pstmt.executeQuery();
+			System.out.println("5.실행");
+			
+			//6.표시 rs->vo
+			if(rs !=null && rs.next()) {
+			vo = new EventVO();
+			vo.setEventNo(rs.getLong("eventNo"));
+			vo.setTitle(rs.getString("title"));
+			vo.setContent(rs.getString("content"));
+			vo.setStartDate(rs.getString("startDate"));
+			vo.setEndDate(rs.getString("endDate"));
+			vo.setUpdateDate(rs.getString("updateDate"));
+			vo.setHit(rs.getLong("hit"));
+			}
+			System.out.println("6.표시,저장완료");
+			
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw new Exception("이벤트사항 보기 DB처리중 에러 발생.");
+		}finally {
+			//7.닫기
+			DB.close(con, pstmt);
+			System.out.println("7.닫기완료");
+		}
+		return vo;
+	}//view 메서드의 끝
+
+
+	@Override
+	public int increase(long no) throws Exception {
+		System.out.println("EventDAOImpl.eventNo() : " +no);
+		int result=0;
+		try {
+			//1,2.드라이버 확인, 연결
+			con = DB.getConnection();
+			System.out.println("1,2.확인,연결");
+			//3.sql
+			String sql = "update event set hit = hit+1 where eventNo = ? ";
+			System.out.println("3. EventDAOImpl.eventNo().increase.sql : " + sql);
+			//4.실행객체, 데이터 저장
+			pstmt=con.prepareStatement(sql);
+			pstmt.setLong(1, no);
+			System.out.println("4.실행객체, 데이터 저장");
+			
+			//5.실행
+			result=pstmt.executeUpdate();
+			System.out.println("5.실행");
+
+			//6.표시 rs->vo
+			if(result==1) {
+			System.out.println(".increase() -조회수 1증가완료");
+			}else {
+				throw new Exception("글이 존재하지 않습니다.");
+			}//if 끝
+			System.out.println("6.표시,저장완료");
+			
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw new Exception("이벤트 DB처리 중 에러 발생");
+		}finally {
+			//7.닫기
+			DB.close(con, pstmt);
+			System.out.println("7.닫기완료");
+		}
+		return result;
+	}
+	
+	
+
+	@Override
+	public int write(EventVO vo) throws Exception {
+		System.out.println("EventDAOImpl.write().vo"+ vo);
+		int result = 0;
+		try {
+			//1,2.드라이버 확인, 연결
+			con = DB.getConnection();
+			System.out.println("1,2.확인,연결");
+			//3.sql
+			String sql = "insert into event (eventNo, title, content, startDate, endDate) "
+					+ " values(event_seq.nextval,?,?,?,?)  ";
+			System.out.println("3. .write.sql : " + sql);
+			//4.실행객체, 데이터 저장
+			pstmt=con.prepareStatement(sql);
+			pstmt.setString(1, vo.getTitle());
+			pstmt.setString(2, vo.getContent());
+			pstmt.setString(3, vo.getStartDate());
+			pstmt.setString(4, vo.getEndDate());
+			System.out.println("4.실행객체, 데이터 저장");
+			
+			//5.실행
+			result=pstmt.executeUpdate();
+			System.out.println("5.실행");
+			
+			//6.표시 rs->vo
+			System.out.println("6. .write() - 1행 삽입 완료");
+			
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw new Exception("이벤트사항 쓰기 DB처리중 에러 발생.");
+		}finally {
+			//7.닫기
+			DB.close(con, pstmt);
+			System.out.println("7.닫기완료");
+		}
+		return result;
+	}
+
+
+
+	@Override
+	public Integer update(EventVO vo) throws Exception {
+		System.out.println("EventDAOImpl.update().vo"+ vo);
+		int result = 0;
+		try {
+			//1,2.드라이버 확인, 연결
+			con = DB.getConnection();
+			System.out.println("1,2.확인,연결");
+			//3.sql
+			String sql = "update event set title=?, content=? where eventNo = ?  ";
+			System.out.println("3. .update.sql : " + sql);
+			//4.실행객체, 데이터 저장
+			pstmt=con.prepareStatement(sql);
+			//첫번째 물음표~
+			pstmt.setString(1, vo.getTitle());
+			pstmt.setString(2, vo.getContent());
+			pstmt.setLong(3, vo.getEventNo());
+			System.out.println("4.실행객체, 데이터 저장");
+			
+			//5.실행
+			result=pstmt.executeUpdate();
+			System.out.println("5.실행");
+			
+			//6.표시 rs->vo
+			System.out.println("6. .update() - 1행 수정 완료");
+			
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw new Exception("이벤트사항 수정 DB처리중 에러 발생.");
+		}finally {
+			//7.닫기
+			DB.close(con, pstmt);
+			System.out.println("7.닫기완료");
+		}
+		return result;
+	}
+
+	
+	public Integer delete(EventVO vo) throws Exception {
+		System.out.println("EventDAOImpl.delete().vo"+ vo);
+		int result = 0;
+		
+		try {
+			//1,2.드라이버 확인, 연결
+			con = DB.getConnection();
+			System.out.println("1,2.확인,연결");
+			//3.sql
+			String sql = "delete from event where eventNo = ?   ";
+			System.out.println("3. .delete.sql : " + sql);
+			//4.실행객체, 데이터 저장
+			pstmt=con.prepareStatement(sql);
+			pstmt.setLong(1, vo.getEventNo());
+			
+			System.out.println("4.실행객체, 데이터 저장");
+			
+			//5.실행
+			result=pstmt.executeUpdate();
+			System.out.println("5.실행");
+			
+			//6.표시 rs->vo
+			System.out.println("6. .delete() - 1행 삭제 완료");
+			
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw new Exception("이벤트사항 삭제 DB처리중 에러 발생.");
+		}finally {
+			//7.닫기
+			DB.close(con, pstmt);
+			System.out.println("7.닫기완료");
+		}
+		return result;
+	}
+
+
+	//응모현황
+	@Override
+	public List<EventVO> applyList(PageObject pageObject) throws Exception {
+		
+		System.out.println("EventDAOImpl.applyList()...");
+		List<EventVO> list = null;
+		
+		try {
+			// 1 드라이버 확인 2 접속
+			con = DB.getConnection();
+			System.out.println("1. 드라이버 확인 2. 접속");
+			// 3 sql
+			String sql = "select w.winNo, e.eventNo, e.title, m.id, w.win "
+					+ " from win w, event e, member m "
+					+ " where (w.id = m.id) and (w.eventNo = e.eventNo)";
+			System.out.println("3. sql :" + sql);
+			// 4 실행객체생성 및 데이터 세팅
+			pstmt = con.prepareStatement(sql);
+			System.out.println("4. 실행객체생성");
+			// 5 실행
+			rs = pstmt.executeQuery();
+			System.out.println("5. 실행완료");
+			// 6 표시 및 저장
+			if (rs != null) {
+				while (rs.next()) {
+					if (list == null)
+						list = new ArrayList<EventVO>();
+					EventVO vo = new EventVO();
+					vo.setWinNo(rs.getLong("winNo"));
+					vo.setEventNo(rs.getLong("eventNo"));
+					vo.setTitle(rs.getString("title"));
+					vo.setId(rs.getString("id"));
+					vo.setWin(rs.getString("win"));
+					list.add(vo);
+				}
+				return list;
+			}		 
+			System.out.println("6. 담기 성공 ");
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw new Exception("현재이벤트 DB 처리 중 오류가 발생되었습니다");
+		} finally {
+			// 7. 닫기
+			DB.close(con, pstmt, rs);
+			System.out.println("7.객체 닫기 성공");
+		}
+		return list;
+	}
+
+
+		//이벤트 응모
+		@Override
+		public int applyWrite(EventVO vo) throws Exception {
+			System.out.println("EventDAOImpl.applyWrite().vo"+ vo);
+			int result = 0;
+			try {
+				//1,2.드라이버 확인, 연결
+				con = DB.getConnection();
+				System.out.println("1,2.확인,연결");
+				//3.sql
+				String sql = "insert into win (winNo, eventNo, id, win ) "
+						+ " values(winNo_seq.nextval, ?, ?, ?)";
+				System.out.println("3. .write.sql : " + sql);
+				//4.실행객체, 데이터 저장
+				pstmt=con.prepareStatement(sql);
+				pstmt.setLong(1, vo.getEventNo());
+				pstmt.setString(2, vo.getId());
+				pstmt.setString(3, vo.getWin());
+				System.out.println("4.실행객체, 데이터 저장");
+				
+				//5.실행
+				result=pstmt.executeUpdate();
+				System.out.println("5.실행");
+				
+				//6.표시 rs->vo
+				System.out.println("6. .write() - 1행 삽입 완료");
+				
+			} catch (Exception e) {
+				e.printStackTrace();
+				throw new Exception("이벤트사항 쓰기 DB처리중 에러 발생.");
+			}finally {
+				//7.닫기
+				DB.close(con, pstmt);
+				System.out.println("7.닫기완료");
+			}
+			return result;
+		}
+
+
+}//class 끝

@@ -1,0 +1,75 @@
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"%>
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Insert title here</title>
+</head>
+<body>
+<div class="container">
+<div class="col-md-12">
+	<a href = "list.do">
+	<button style="float: right; margin-bottom: 10px;">나만의메뉴</button></a>
+	<h2>나만의 메뉴 수정</h2>
+	<p style="text-align:center;margin-bottom:15px;"> ※ 나만의 메뉴 수정은 이름만 수정 가능합니다. ※</p>
+</div>
+<div class="col-md-12">
+	<hr>
+</div>
+<div class="row">
+	<div class="col-md-4">
+		<img src="${vo.fileName }"class="img-thubnail"style=" margin-top: -40px;"/>
+	</div>
+	<div class="col-md-8"style=" margin-top: -40px;">${vo.mmName }
+	<!-- 수정 버튼Modal -->
+	<button type="button"class="btn btn-default"data-toggle="modal"data-target="#upModal"style="float: right;">수정</button>
+		<div style="margin-top:20px;">
+			<hr>
+			<div class="row">
+				<div class="col-md-8"style=" margin-top: -40px;">상품명 : &nbsp;${vo.name_kr }</div>
+				<div class="col-md-8"style="margin-bottom: 5px; margin-top: -20px;">
+				상품 설명:&nbsp;${vo.goodsview }</div>
+			</div>
+		</div>
+		<div class="row">
+					<div class="col-md-10">분류 : &nbsp;${vo.goodsDiv }</div>
+				</div>
+				<div class="row">
+					<div class="col-md-10">사이즈 :&nbsp; ${vo.cup_size }</div>
+				</div>
+				<div class="row">
+					<div class="col-md-10">컵 : &nbsp;${vo.cup }</div>
+				</div>
+				<div class="row">
+					<div class="col-md-10"id="syrup">시럽 : &nbsp;${vo.syrup }</div>
+				</div>
+		<!-- Modal -->
+		<div id="upModal"class="modal fade"role="dialog">
+			<div class="modal-dialog">
+		<!-- Modal content -->
+		<div class="modal-content">
+			<div class="modal-header">
+				<button type="button"class="close"data-dismiss="modal">X</button>
+				<h4 class="modal-title">나만의 메뉴 이름 수정</h4>
+			</div>
+			<div class="modal-body"id="updateForm">
+				<form action="update.do"method="post"id="updateForm">
+					<input type="hidden"name="no"value="${vo.mmNo }">
+					<div class="form-group">
+						<label for="Name">나만의 메뉴 이름 수정</label>
+						<input name="Name"id="Name"class="form-control">
+					</div>
+					<div class="modal-footer">
+						<button class="btn btn-default pull-right">수정</button>
+					</div>
+				</form>
+			</div>
+		</div>
+			</div>
+		</div>
+	</div>
+</div>
+</div>
+</body>
+</html>

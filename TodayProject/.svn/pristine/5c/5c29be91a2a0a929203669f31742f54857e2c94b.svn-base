@@ -1,0 +1,56 @@
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"%>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>응모 현황</title>
+<script type="text/javascript">
+	
+</script>
+
+</head>
+<body>
+
+<div class="container">
+
+<div class="col-md-12" >
+		<h2>내 응모 현황</h2>
+		<hr>
+	</div>
+<!-- 관리자일 경우 모든 회원의 응모 리스트를 볼 수 있다. -->
+<!-- 로그인 회원 본인일 경우 - 응모한 이벤트 리스트  -->
+<table class="table">
+	<thead>
+		<tr>
+			<th>응모번호</th>
+			<th>event 번호</th>
+			<th>event 제목</th>
+			<th>응모자</th>
+			<th>당첨여부</th>
+		<c:if test="${login !=null && login.gradeNo ==9}">
+			<th class="changeBtn">당첨현황 변경하기</th>
+		</c:if>
+		</tr>
+	</thead>
+	
+	<tbody>
+		<c:forEach items="${list }" var="vo">
+			<tr class="dataRow">
+				<td class="no">${vo.winNo}</td> 
+				<td>${vo.eventNo}</td> 
+		        <td>${vo.title}</td>
+		        <td>${vo.id}</td>
+		        <td>${vo.win}</td>
+		       <c:if test="${login !=null && login.gradeNo ==9}">
+		        <td><button class="btn btn-default changeBtn">변경하기</button></td>
+		      </c:if>
+		      </tr>
+		</c:forEach>
+	</tbody>
+</table>
+	
+</div>
+</body>
+</html>

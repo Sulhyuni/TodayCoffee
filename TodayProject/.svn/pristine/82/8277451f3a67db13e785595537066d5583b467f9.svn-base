@@ -1,0 +1,82 @@
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+	pageEncoding="UTF-8"%>
+ <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
+ 
+
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>상품관리</title>
+<!-- 라이브러리 등록  : CDN 방식 -->
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script	src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.1/jquery.min.js"></script>
+<script	src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+
+<script type="text/javascript">
+	$(function() {
+		//alert("jQuery 동작함")
+		$(".dataRow").click(function() {
+			let goodsNo = $(this).data("no");
+		//	alert("클릭한번호 : " + goodsNo);
+			location = "view.do?no=" + goodsNo;
+		});
+	});
+</script>
+
+<style type="text/css">
+.dataRow>.img:hover {
+	cursor: pointer;
+}
+/* .dataRow>.thumbnail{ */
+/* 	margin-bottom: 50px; */
+/* } */
+
+/* 이미지확대 */
+.img-zoom:hover {
+	 transform: scale(1.1, 1.1); -webkit-transform: scale(1.1, 1.1);
+	}
+#name_kr{
+	font: 18px ;
+	font-weight:900;
+	text-align: center;
+}
+
+</style>
+
+</head>
+<body>
+<!-- 개발 후반부에 관리자 접근 주석 풀기 -->
+	<div class="container">
+		<div class="col-md-12">
+<%-- 		<c:if test="${login !=null && login.gradeNo ==9 }"> --%>
+			<a href="write.do">
+				<button style="float: right; margin-bottom: 10px;">상품등록</button>
+			</a>
+<%-- 		</c:if> --%>
+			<h2>음료&푸드</h2>
+		</div>
+			<div class="col-md-12"><hr></div>
+		<div class="row">
+			<!-- c:forEach 의 속성 중 반복 회수가 저장 되어있는 varStatus 변수의 상태 -->
+			<c:forEach items="${list }" var="vo" varStatus="vs">
+				<!-- 데이터 출력 개수가 4의 배수 -->
+				<c:if test="${vs.index != 0 && vs.index % 4 == 0}">
+			${"</div>"}
+			${"<div class = \"row\">"}
+		</c:if>
+				<div class="col-md-3 dataRow" data-no="${vo.goodsNo }" style="margin-bottom: 50px; ">
+					<div class="img" >
+						<img src="${vo.fileName }" class="img-zoom" alt="${vo.fileName }"
+							style="width: 100%">
+						<div class ="caption">
+							<p id="name_kr" style="margin-bottom: 5px;">${vo.name_kr }</p>
+							<span class = "pull-right" >${vo.price} 원 </span>
+						</div>
+					</div>
+				</div>
+			</c:forEach>
+		</div>
+	</div>
+</body>
+</html>

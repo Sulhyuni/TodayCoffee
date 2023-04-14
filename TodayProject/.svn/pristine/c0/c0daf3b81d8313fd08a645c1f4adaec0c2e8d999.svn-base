@@ -1,0 +1,5 @@
+package com.today.order.vo;
+
+public class OrderVO {
+
+}
